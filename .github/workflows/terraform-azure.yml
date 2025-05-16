@@ -1,6 +1,7 @@
 name: Terraform Lint & Deploy
 
 on:
+  workflow_dispatch:
   push:
     paths:
       - 'infra/tf/**'
@@ -9,7 +10,6 @@ on:
     paths:
       - 'infra/tf/**'
       - '.github/workflows/terraform-azure.yml'
-  workflow_dispatch:
 
 jobs:
   lint:
