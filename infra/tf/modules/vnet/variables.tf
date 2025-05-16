@@ -1,41 +1,25 @@
-variable "resource_group_name" {
-  description = "The name of the resource group"
+variable "vnet_name" {
+  description = "Name of the virtual network."
   type        = string
 }
 
 variable "location" {
-  description = "The Azure region to deploy resources"
-  type        = string
-  default     = "eastus"
-}
-
-variable "log_analytics_workspace_name" {
-  description = "The name of the Log Analytics Workspace"
+  description = "Azure region."
   type        = string
 }
 
-variable "subscription_id" {
-  description = "The Azure Subscription ID to use for the provider."
+variable "resource_group_name" {
+  description = "Resource group name."
   type        = string
 }
 
-variable "suffix" {
-  description = "Suffix for resource naming."
-  type        = string
-}
-
-variable "environment" {
-  description = "Environment for resource naming."
-  type        = string
-}
-
-variable "vnet_address_spaces" {
-  description = "Address spaces for the virtual network."
+variable "address_spaces" {
+  description = "Array of address spaces for the VNet."
   type        = list(string)
 }
 
-variable "vnet_subnets" {
-  description = "Subnets configuration for the virtual network."
+variable "subnets" {
+  description = "Array of subnet objects."
   type = list(object({
     name             = string
     address_prefixes = list(string)
@@ -69,16 +53,4 @@ variable "vnet_subnets" {
     }))
     service_endpoints = optional(list(string))
   }))
-}
-
-variable "key_vault_purge_protection_enabled" {
-  description = "Enable purge protection for Key Vault."
-  type        = bool
-  default     = true
-}
-
-variable "key_vault_soft_delete_retention_days" {
-  description = "The number of days that items should be retained for soft delete in Key Vault."
-  type        = number
-  default     = 7
 }
