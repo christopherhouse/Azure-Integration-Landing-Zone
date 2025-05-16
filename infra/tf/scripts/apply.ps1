@@ -1,0 +1,1 @@
+terraform apply ..\tf.plan

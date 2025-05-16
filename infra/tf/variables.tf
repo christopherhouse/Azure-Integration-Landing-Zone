@@ -18,3 +18,18 @@ variable "subscription_id" {
   description = "The Azure Subscription ID to use for the provider."
   type        = string
 }
+
+variable "prefix" {
+  description = "Prefix for resource naming."
+  type        = string
+}
+
+variable "suffix" {
+  description = "Suffix for resource naming."
+  type        = string
+}
+
+variable "environment" {
+  description = "Environment for resource naming."
+  type        = string
+}
