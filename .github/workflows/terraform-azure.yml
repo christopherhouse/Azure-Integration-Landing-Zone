@@ -9,6 +9,7 @@ on:
     paths:
       - 'infra/tf/**'
       - '.github/workflows/terraform-azure.yml'
+  workflow_dispatch:
 
 jobs:
   lint:
