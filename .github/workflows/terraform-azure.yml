@@ -11,6 +11,11 @@ on:
       - 'infra/tf/**'
       - '.github/workflows/terraform-azure.yml'
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 jobs:
   lint:
     name: Terraform Format & Validate
