@@ -67,16 +67,17 @@ module "key_vault" {
 }
 
 module "api_management" {
-  source                      = "./modules/api_management"
-  name                        = module.names.api_management_name
-  location                    = data.azurerm_resource_group.rg.location
-  resource_group_name         = data.azurerm_resource_group.rg.name
-  publisher_name              = var.apim_publisher_name
-  publisher_email             = var.apim_publisher_email
-  sku_name                    = var.apim_sku_name
-  sku_capacity                = var.apim_sku_capacity
-  subnet_id                   = module.vnet.subnet_ids["apim"]
-  log_analytics_workspace_id  = module.log_analytics.workspace_id
+  count                        = var.deploy_api_management ? 1 : 0
+  source                       = "./modules/api_management"
+  name                         = module.names.api_management_name
+  location                     = data.azurerm_resource_group.rg.location
+  resource_group_name          = data.azurerm_resource_group.rg.name
+  publisher_name               = var.apim_publisher_name
+  publisher_email              = var.apim_publisher_email
+  sku_name                     = var.apim_sku_name
+  sku_capacity                 = var.apim_sku_capacity
+  subnet_id                    = module.vnet.subnet_ids["apim"]
+  log_analytics_workspace_id   = module.log_analytics.workspace_id
   enable_system_assigned_identity = true # or false, depending on your needs
-  user_assigned_identity_ids      = []   # or provide actual IDs if needed
+  user_assigned_identity_ids       = []   # or provide actual IDs if needed
 }

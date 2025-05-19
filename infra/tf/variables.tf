@@ -106,3 +106,9 @@ variable "apim_sku_capacity" {
   type        = number
   description = "APIM SKU capacity (instance count)."
 }
+
+variable "deploy_api_management" {
+  description = "Controls whether the API Management module is deployed"
+  type        = bool
+  default     = true
+}
