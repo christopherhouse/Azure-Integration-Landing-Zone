@@ -8,6 +8,7 @@ resource "azurerm_storage_account" "this" {
   access_tier              = var.access_tier
   min_tls_version          = var.min_tls_version
   public_network_access_enabled = false
+  tags                     = var.tags
 }
 
 resource "azurerm_storage_container" "this" {

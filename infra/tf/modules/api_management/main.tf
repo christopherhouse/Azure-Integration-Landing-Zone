@@ -17,6 +17,8 @@ resource "azurerm_api_management" "this" {
       identity_ids = var.user_assigned_identity_ids
     }
   }
+
+  tags = var.tags
 }
 
 resource "azurerm_monitor_diagnostic_setting" "apim" {

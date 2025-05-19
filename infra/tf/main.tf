@@ -43,6 +43,7 @@ module "log_analytics" {
   workspace_name      = module.names.log_analytics_workspace_name
   resource_group_name = data.azurerm_resource_group.rg.name
   location            = data.azurerm_resource_group.rg.location
+  tags                = var.tags
 }
 
 module "vnet" {
@@ -52,6 +53,7 @@ module "vnet" {
   resource_group_name = data.azurerm_resource_group.rg.name
   address_spaces      = var.vnet_address_spaces
   subnets             = var.vnet_subnets
+  tags                = var.tags
 }
 
 data "azurerm_client_config" "current" {}
@@ -67,6 +69,7 @@ module "key_vault" {
   log_analytics_workspace_id = module.log_analytics.workspace_id
   vnet_id                   = module.vnet.vnet_id
   subnet_id                 = module.vnet.subnet_ids["private-endpoints"]
+  tags                      = var.tags
 }
 
 module "api_management" {
@@ -83,6 +86,7 @@ module "api_management" {
   log_analytics_workspace_id   = module.log_analytics.workspace_id
   enable_system_assigned_identity = true # or false, depending on your needs
   user_assigned_identity_ids       = []   # or provide actual IDs if needed
+  tags                            = var.tags
 }
 
 module "app_service_environment" {
@@ -93,6 +97,7 @@ module "app_service_environment" {
   location             = var.location
   vnet_id              = module.vnet.vnet_id
   subnet_id            = module.vnet.subnet_ids["ase"]
+  tags                 = var.tags
 }
 
 # Storage Accounts
@@ -128,4 +133,5 @@ module "storage_accounts" {
   tables           = lookup(each.value, "tables", [])
   queues           = lookup(each.value, "queues", [])
   file_shares      = lookup(each.value, "file_shares", [])
+  tags             = var.tags
 }

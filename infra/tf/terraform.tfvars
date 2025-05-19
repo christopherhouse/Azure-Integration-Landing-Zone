@@ -173,3 +173,9 @@ storage_accounts = [
     allow_blob_public_access = false
   }
 ]
+
+tags = {
+  environment = "dev"
+  owner       = "Chris House"
+  project     = "ais-landing-zone"
+}
