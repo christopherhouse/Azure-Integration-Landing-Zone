@@ -40,3 +40,13 @@ variable "soft_delete_retention_days" {
   type        = number
   default     = 7
 }
+
+variable "vnet_id" {
+  description = "The ID of the Virtual Network to link the DNS zone and for the private endpoint."
+  type        = string
+}
+
+variable "subnet_id" {
+  description = "The subnet ID for the Key Vault private endpoint."
+  type        = string
+}

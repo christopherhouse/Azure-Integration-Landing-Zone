@@ -23,3 +23,25 @@ resource "azurerm_monitor_diagnostic_setting" "kv_diag" {
     category = "AllMetrics"
   }
 }
+
+module "private_dns_zone" {
+  source              = "../private_dns_zone"
+  zone_name           = "privatelink.vaultcore.azure.net"
+  resource_group_name = var.resource_group_name
+  link_name           = "kv-dns-link"
+  vnet_id             = var.vnet_id
+  create_a_record     = true
+  a_record_name       = var.key_vault_name
+  a_record_ip         = module.private_endpoint.private_ip_address
+}
+
+module "private_endpoint" {
+  source                        = "../private_endpoint"
+  name                          = "${var.key_vault_name}-pe"
+  location                      = var.location
+  resource_group_name           = var.resource_group_name
+  subnet_id                     = var.subnet_id
+  connection_name               = "${var.key_vault_name}-pe-conn"
+  private_connection_resource_id = azurerm_key_vault.this.id
+  subresource_names             = ["vault"]
+}
