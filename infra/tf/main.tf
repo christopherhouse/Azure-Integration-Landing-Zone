@@ -64,6 +64,8 @@ module "key_vault" {
   purge_protection_enabled  = var.key_vault_purge_protection_enabled
   soft_delete_retention_days = var.key_vault_soft_delete_retention_days
   log_analytics_workspace_id = module.log_analytics.workspace_id
+  vnet_id                   = module.vnet.vnet_id
+  subnet_id                 = module.vnet.subnet_ids["private-endpoints"]
 }
 
 module "api_management" {
