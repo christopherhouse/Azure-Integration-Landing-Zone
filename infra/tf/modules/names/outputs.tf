@@ -17,3 +17,7 @@ output "key_vault_name" {
 output "api_management_name" {
   value = module.naming.api_management.name_unique
 }
+
+output "app_service_environment_name" {
+  value = module.naming.app_service_environment.name_unique
+}

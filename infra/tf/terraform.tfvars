@@ -150,3 +150,4 @@ apim_sku_name     = "Developer"
 apim_sku_capacity = 1
 
 deploy_api_management = true
+deploy_app_service_environment = true

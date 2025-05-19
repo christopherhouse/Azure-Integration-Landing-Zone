@@ -83,3 +83,13 @@ module "api_management" {
   enable_system_assigned_identity = true # or false, depending on your needs
   user_assigned_identity_ids       = []   # or provide actual IDs if needed
 }
+
+module "app_service_environment" {
+  count                = var.deploy_app_service_environment ? 1 : 0
+  source               = "./modules/app_service_environment"
+  app_service_environment_name             = module.names.app_service_environment_name
+  resource_group_name  = data.azurerm_resource_group.rg.name
+  location             = var.location
+  vnet_id              = module.vnet.vnet_id
+  subnet_id            = module.vnet.subnet_ids["ase"]
+}
