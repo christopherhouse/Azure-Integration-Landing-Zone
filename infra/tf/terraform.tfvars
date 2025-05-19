@@ -151,3 +151,25 @@ apim_sku_capacity = 1
 
 deploy_api_management = true
 deploy_app_service_environment = true
+
+storage_accounts = [
+  {
+    name_prefix = "apimbackup"
+    private_endpoints = ["blob"]
+    create_private_dns_zone = true
+    blob_containers = [
+      {
+        name = "apimbackup"
+        public_access = "None"
+      }
+    ]
+    tables = []
+    queues = []
+    file_shares = []
+    sku_name = "Standard_LRS"
+    account_kind = "StorageV2"
+    access_tier = "Hot"
+    min_tls_version = "TLS1_2"
+    allow_blob_public_access = false
+  }
+]

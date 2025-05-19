@@ -118,3 +118,37 @@ variable "deploy_app_service_environment" {
   type        = bool
   default     = false
 }
+
+variable "storage_accounts" {
+  description = "List of storage accounts to deploy. Each item is an object with all configuration."
+  type = list(object({
+    name_prefix      = string
+    location         = optional(string)
+    sku_name         = optional(string)
+    account_kind     = optional(string)
+    access_tier      = optional(string)
+    min_tls_version  = optional(string)
+    allow_blob_public_access = optional(bool)
+    private_endpoints = optional(list(string))
+    create_private_dns_zone = optional(bool)
+    blob_containers  = optional(list(object({
+      name           = string
+      public_access  = optional(string)
+      metadata       = optional(map(string))
+      container_access_type = optional(string)
+    })))
+    tables          = optional(list(object({
+      name = string
+    })))
+    queues          = optional(list(object({
+      name     = string
+      metadata = optional(map(string))
+    })))
+    file_shares     = optional(list(object({
+      name     = string
+      quota    = optional(number)
+      metadata = optional(map(string))
+    })))
+  }))
+  default = []
+}

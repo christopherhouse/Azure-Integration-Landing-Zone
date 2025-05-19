@@ -35,6 +35,7 @@ module "names" {
   source = "./modules/names"
   suffix = var.suffix
   environment = var.environment
+  workloadName = ""
 }
 
 module "log_analytics" {
@@ -92,4 +93,39 @@ module "app_service_environment" {
   location             = var.location
   vnet_id              = module.vnet.vnet_id
   subnet_id            = module.vnet.subnet_ids["ase"]
+}
+
+# Storage Accounts
+resource "null_resource" "storage_account_names" {
+  for_each = { for sa in var.storage_accounts : sa.name_prefix => sa }
+}
+
+module "storage_account_names" {
+  source = "./modules/names"
+  for_each = { for sa in var.storage_accounts : sa.name_prefix => sa }
+  suffix = var.suffix
+  environment = var.environment
+  workloadName = each.value.name_prefix
+}
+
+module "storage_accounts" {
+  source = "./modules/storage_account"
+  for_each = { for sa in var.storage_accounts : sa.name_prefix => sa }
+  log_analytics_workspace_id = module.log_analytics.workspace_id
+  storage_account_name = module.storage_account_names[each.key].storage_account_name
+  location         = data.azurerm_resource_group.rg.location
+  resource_group_name = var.resource_group_name
+  sku_name         = lookup(each.value, "sku_name", "Standard_LRS")
+  account_kind     = lookup(each.value, "account_kind", "StorageV2")
+  access_tier      = lookup(each.value, "access_tier", "Hot")
+  min_tls_version  = lookup(each.value, "min_tls_version", "TLS1_2")
+  allow_blob_public_access = lookup(each.value, "allow_blob_public_access", false)
+  vnet_id          = module.vnet.vnet_id
+  subnet_id        = module.vnet.subnet_ids["private-endpoints"]
+  private_endpoints = lookup(each.value, "private_endpoints", [])
+  create_private_dns_zone = lookup(each.value, "create_private_dns_zone", false)
+  blob_containers  = lookup(each.value, "blob_containers", [])
+  tables           = lookup(each.value, "tables", [])
+  queues           = lookup(each.value, "queues", [])
+  file_shares      = lookup(each.value, "file_shares", [])
 }
