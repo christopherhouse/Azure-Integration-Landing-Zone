@@ -12,6 +12,7 @@ This repository provides a modular, production-ready Terraform codebase for depl
   - Log Analytics Workspace
   - Virtual Network (with flexible subnet, NSG, route table, and delegation support)
   - Azure Key Vault (with RBAC, diagnostics, and security best practices)
+  - Azure API Management (internal VNet integration, diagnostics, identity, and logging)
   - Azure Naming module integration for consistent resource names
 
 - **Best Practices**:  
@@ -71,7 +72,23 @@ vnet_subnets = [
 
 key_vault_purge_protection_enabled   = true
 key_vault_soft_delete_retention_days = 7
+
+# ---
+# API Management (APIM) module configuration (optional)
+# Remove or comment out this section if you do not wish to deploy APIM
+# ---
+apim_enabled = true
+apim_name = "apimlz-tfdevoluo"
+apim_sku_name = "Developer"
+apim_sku_capacity = 1
+apim_publisher_name = "Your Company"
+apim_publisher_email = "admin@yourcompany.com"
+apim_subnet_id = "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/RG-AIS-LZ-TF/providers/Microsoft.Network/virtualNetworks/vnet-ais-lz-tf/subnets/apim"
+apim_enable_system_assigned_identity = true
+apim_user_assigned_identity_ids = []
 ```
+
+> **Note:** The API Management (APIM) module is optional. If you do not wish to deploy APIM, set `apim_enabled = false` or remove the APIM-related variables from your `terraform.tfvars`.
 
 ### 3. Initialize & Deploy
 
@@ -96,7 +113,23 @@ infra/
       log_analytics/
       vnet/
       key_vault/
+      api_management/   # Azure API Management module (optional)
 ```
+
+---
+
+## 🔹 API Management Module
+
+> **This module is optional.**
+
+The **API Management** module provisions an Azure API Management instance with:
+- Internal VNet integration for secure, private access
+- System-assigned and/or user-assigned managed identity support
+- Diagnostic settings routed to Log Analytics (audit, gateway, websocket logs, metrics)
+- Flexible SKU and capacity configuration
+- Best practices for security and monitoring
+
+This module is ideal for organizations needing centralized API gateway capabilities with enterprise-grade security and observability.
 
 ---
 

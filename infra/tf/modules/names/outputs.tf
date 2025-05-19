@@ -13,3 +13,7 @@ output "vnet_name" {
 output "key_vault_name" {
   value = module.naming.key_vault.name_unique
 }
+
+output "api_management_name" {
+  value = module.naming.api_management.name_unique
+}
