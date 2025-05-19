@@ -112,3 +112,9 @@ variable "deploy_api_management" {
   type        = bool
   default     = true
 }
+
+variable "deploy_app_service_environment" {
+  description = "Controls whether the App Service Environment module is deployed"
+  type        = bool
+  default     = false
+}

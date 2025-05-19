@@ -30,9 +30,6 @@ module "private_dns_zone" {
   resource_group_name = var.resource_group_name
   link_name           = "kv-dns-link"
   vnet_id             = var.vnet_id
-  create_a_record     = true
-  a_record_name       = var.key_vault_name
-  a_record_ip         = module.private_endpoint.private_ip_address
 }
 
 module "private_endpoint" {
