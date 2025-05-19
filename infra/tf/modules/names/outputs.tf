@@ -21,3 +21,7 @@ output "api_management_name" {
 output "app_service_environment_name" {
   value = module.naming.app_service_environment.name_unique
 }
+
+output "storage_account_name" {
+  value = replace(module.naming.storage_account.name_unique, "-", "")
+}

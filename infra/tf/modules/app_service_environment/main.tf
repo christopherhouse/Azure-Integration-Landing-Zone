@@ -6,6 +6,7 @@ resource "azurerm_app_service_environment_v3" "app_service_environment" {
   subnet_id           = var.subnet_id
   internal_load_balancing_mode = "Web, Publishing"
   zone_redundant      = false
+  tags                = var.tags
   # Add more settings as needed
 }
 
@@ -15,6 +16,7 @@ module "private_dns_zone" {
   resource_group_name = var.resource_group_name
   link_name           = "${var.app_service_environment_name}-vnet-link"
   vnet_id             = var.vnet_id
+  tags                = var.tags
 }
 
 module "dns_a_record_wildcard" {

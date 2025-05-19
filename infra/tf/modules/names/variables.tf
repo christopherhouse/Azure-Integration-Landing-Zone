@@ -13,3 +13,8 @@ variable "environment" {
   description = "Environment for resource names."
   type        = string
 }
+
+variable "workloadName" {
+  description = "Workload name for resource names."
+  type        = string
+}

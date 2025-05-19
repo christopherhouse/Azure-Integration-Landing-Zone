@@ -23,3 +23,4 @@ variable "records" {
   description = "The list of IP addresses for the A record."
   type        = list(string)
 }
+

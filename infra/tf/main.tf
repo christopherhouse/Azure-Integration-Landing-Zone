@@ -35,6 +35,7 @@ module "names" {
   source = "./modules/names"
   suffix = var.suffix
   environment = var.environment
+  workloadName = ""
 }
 
 module "log_analytics" {
@@ -42,6 +43,7 @@ module "log_analytics" {
   workspace_name      = module.names.log_analytics_workspace_name
   resource_group_name = data.azurerm_resource_group.rg.name
   location            = data.azurerm_resource_group.rg.location
+  tags                = var.tags
 }
 
 module "vnet" {
@@ -51,6 +53,7 @@ module "vnet" {
   resource_group_name = data.azurerm_resource_group.rg.name
   address_spaces      = var.vnet_address_spaces
   subnets             = var.vnet_subnets
+  tags                = var.tags
 }
 
 data "azurerm_client_config" "current" {}
@@ -66,6 +69,7 @@ module "key_vault" {
   log_analytics_workspace_id = module.log_analytics.workspace_id
   vnet_id                   = module.vnet.vnet_id
   subnet_id                 = module.vnet.subnet_ids["private-endpoints"]
+  tags                      = var.tags
 }
 
 module "api_management" {
@@ -82,6 +86,7 @@ module "api_management" {
   log_analytics_workspace_id   = module.log_analytics.workspace_id
   enable_system_assigned_identity = true # or false, depending on your needs
   user_assigned_identity_ids       = []   # or provide actual IDs if needed
+  tags                            = var.tags
 }
 
 module "app_service_environment" {
@@ -92,4 +97,41 @@ module "app_service_environment" {
   location             = var.location
   vnet_id              = module.vnet.vnet_id
   subnet_id            = module.vnet.subnet_ids["ase"]
+  tags                 = var.tags
+}
+
+# Storage Accounts
+resource "null_resource" "storage_account_names" {
+  for_each = { for sa in var.storage_accounts : sa.name_prefix => sa }
+}
+
+module "storage_account_names" {
+  source = "./modules/names"
+  for_each = { for sa in var.storage_accounts : sa.name_prefix => sa }
+  suffix = var.suffix
+  environment = var.environment
+  workloadName = each.value.name_prefix
+}
+
+module "storage_accounts" {
+  source = "./modules/storage_account"
+  for_each = { for sa in var.storage_accounts : sa.name_prefix => sa }
+  log_analytics_workspace_id = module.log_analytics.workspace_id
+  storage_account_name = module.storage_account_names[each.key].storage_account_name
+  location         = data.azurerm_resource_group.rg.location
+  resource_group_name = var.resource_group_name
+  sku_name         = lookup(each.value, "sku_name", "Standard_LRS")
+  account_kind     = lookup(each.value, "account_kind", "StorageV2")
+  access_tier      = lookup(each.value, "access_tier", "Hot")
+  min_tls_version  = lookup(each.value, "min_tls_version", "TLS1_2")
+  allow_blob_public_access = lookup(each.value, "allow_blob_public_access", false)
+  vnet_id          = module.vnet.vnet_id
+  subnet_id        = module.vnet.subnet_ids["private-endpoints"]
+  private_endpoints = lookup(each.value, "private_endpoints", [])
+  create_private_dns_zone = lookup(each.value, "create_private_dns_zone", false)
+  blob_containers  = lookup(each.value, "blob_containers", [])
+  tables           = lookup(each.value, "tables", [])
+  queues           = lookup(each.value, "queues", [])
+  file_shares      = lookup(each.value, "file_shares", [])
+  tags             = var.tags
 }

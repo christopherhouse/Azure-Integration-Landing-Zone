@@ -14,7 +14,6 @@ variable "location" {
 }
 
 variable "tags" {
-  description = "Tags to apply to the workspace"
+  description = "A map of tags to assign to resources."
   type        = map(string)
-  default     = {}
 }

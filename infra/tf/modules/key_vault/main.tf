@@ -8,6 +8,7 @@ resource "azurerm_key_vault" "this" {
   purge_protection_enabled      = var.purge_protection_enabled
   public_network_access_enabled = false
   sku_name                      = "standard"
+  tags                          = var.tags
 }
 
 resource "azurerm_monitor_diagnostic_setting" "kv_diag" {
@@ -30,15 +31,17 @@ module "private_dns_zone" {
   resource_group_name = var.resource_group_name
   link_name           = "kv-dns-link"
   vnet_id             = var.vnet_id
+  tags                = var.tags
 }
 
 module "private_endpoint" {
-  source                        = "../private_endpoint"
-  name                          = "${var.key_vault_name}-pe"
-  location                      = var.location
-  resource_group_name           = var.resource_group_name
-  subnet_id                     = var.subnet_id
-  connection_name               = "${var.key_vault_name}-pe-conn"
+  source                         = "../private_endpoint"
+  name                           = "${var.key_vault_name}-pe"
+  location                       = var.location
+  resource_group_name            = var.resource_group_name
+  subnet_id                      = var.subnet_id
+  connection_name                = "${var.key_vault_name}-pe-conn"
   private_connection_resource_id = azurerm_key_vault.this.id
-  subresource_names             = ["vault"]
+  subresource_names              = ["vault"]
+  tags                           = var.tags
 }

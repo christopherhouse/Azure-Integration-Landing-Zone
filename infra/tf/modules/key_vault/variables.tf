@@ -50,3 +50,8 @@ variable "subnet_id" {
   description = "The subnet ID for the Key Vault private endpoint."
   type        = string
 }
+
+variable "tags" {
+  description = "A map of tags to assign to resources."
+  type        = map(string)
+}
