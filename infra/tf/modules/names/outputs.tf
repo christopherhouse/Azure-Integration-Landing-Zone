@@ -25,3 +25,7 @@ output "app_service_environment_name" {
 output "storage_account_name" {
   value = replace(module.naming.storage_account.name_unique, "-", "")
 }
+
+output "service_bus_namespace_name" {
+  value = module.naming.servicebus_namespace.name_unique
+}
