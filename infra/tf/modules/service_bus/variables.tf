@@ -27,7 +27,7 @@ variable "availability_zones" {
   type        = list(string)
   default     = []
   validation {
-    condition     = length(var.availability_zones) <= 3 && alltrue([
+    condition = length(var.availability_zones) <= 3 && alltrue([
       for zone in var.availability_zones : contains(["1", "2", "3"], zone)
     ])
     error_message = "Availability zones must be a subset of [\"1\", \"2\", \"3\"] with at most 3 elements."
