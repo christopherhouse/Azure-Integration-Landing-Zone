@@ -43,8 +43,6 @@ variable "queues" {
     name                              = string
     max_size_in_megabytes             = optional(number)
     default_message_ttl               = optional(string)
-    enable_partitioning               = optional(bool)
-    enable_express                    = optional(bool)
     max_delivery_count                = optional(number)
     lock_duration                     = optional(string)
     requires_duplicate_detection      = optional(bool)
@@ -60,8 +58,6 @@ variable "topics" {
     name                              = string
     max_size_in_megabytes             = optional(number)
     default_message_ttl               = optional(string)
-    enable_partitioning               = optional(bool)
-    enable_express                    = optional(bool)
     requires_duplicate_detection      = optional(bool)
     support_ordering                  = optional(bool)
     subscriptions = optional(list(object({

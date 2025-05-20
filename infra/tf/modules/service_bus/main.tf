@@ -16,8 +16,6 @@ resource "azurerm_servicebus_queue" "this" {
   
   max_size_in_megabytes             = lookup(each.value, "max_size_in_megabytes", null)
   default_message_ttl               = lookup(each.value, "default_message_ttl", null)
-  enable_partitioning               = lookup(each.value, "enable_partitioning", null)
-  enable_express                    = lookup(each.value, "enable_express", null)
   max_delivery_count                = lookup(each.value, "max_delivery_count", null)
   lock_duration                     = lookup(each.value, "lock_duration", null)
   requires_duplicate_detection      = lookup(each.value, "requires_duplicate_detection", null)
@@ -32,8 +30,6 @@ resource "azurerm_servicebus_topic" "this" {
   
   max_size_in_megabytes             = lookup(each.value, "max_size_in_megabytes", null)
   default_message_ttl               = lookup(each.value, "default_message_ttl", null)
-  enable_partitioning               = lookup(each.value, "enable_partitioning", null)
-  enable_express                    = lookup(each.value, "enable_express", null)
   requires_duplicate_detection      = lookup(each.value, "requires_duplicate_detection", null)
   support_ordering                  = lookup(each.value, "support_ordering", null)
 }
