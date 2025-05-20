@@ -94,7 +94,6 @@ apim_user_assigned_identity_ids = []
 # ---
 deploy_service_bus = true
 service_bus_capacity_units = 1
-service_bus_availability_zones = ["1", "2", "3"]
 ```
 
 > **Note:** The API Management (APIM) module is optional. If you do not wish to deploy APIM, set `deploy_api_management = false` or remove the APIM-related variables from your `terraform.tfvars`.
@@ -153,9 +152,44 @@ The **Service Bus** module provisions an Azure Service Bus namespace with:
 - Premium SKU for enterprise-grade messaging capabilities
 - Private endpoint integration for secure, private access
 - Configurable capacity units (1, 2, 4, 8, 16)
-- Optional Availability Zone redundancy (support for 1-3 AZs)
 - Diagnostic settings routed to Log Analytics
 - Private DNS zone integration
+- Queues with configurable properties (size, TTL, delivery count, sessions, dead-lettering)
+- Topics with subscriptions (various subscription properties: TTL, locks, sessions, dead-lettering)
+
+The module includes example queue and topic configurations out of the box. These can be customized or extended based on your specific needs.
+
+See the [Service Bus module README](/infra/tf/modules/service_bus/README.md) for detailed usage and configuration options.
+
+Example usage:
+```hcl
+# Enable Service Bus in terraform.tfvars
+deploy_service_bus = true
+service_bus_capacity_units = 1
+
+# Custom queue definitions
+service_bus_queues = [
+  {
+    name = "orders-queue"
+    max_size_in_megabytes = 1024
+    default_message_ttl = "P14D"  # 14 days
+    max_delivery_count = 10
+  }
+]
+
+# Custom topic with subscription definitions
+service_bus_topics = [
+  {
+    name = "events"
+    subscriptions = [
+      {
+        name = "all-events"
+        max_delivery_count = 10
+      }
+    ]
+  }
+]
+```
 
 This module is ideal for organizations requiring a robust messaging infrastructure with enterprise-grade security, reliability, and scalability.
 
