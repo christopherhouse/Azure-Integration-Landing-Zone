@@ -146,5 +146,7 @@ module "service_bus" {
   log_analytics_workspace_id = module.log_analytics.workspace_id
   subnet_id           = module.vnet.subnet_ids["private-endpoints"]
   vnet_id             = module.vnet.vnet_id
+  queues              = var.service_bus_queues
+  topics              = var.service_bus_topics
   tags                = var.tags
 }
