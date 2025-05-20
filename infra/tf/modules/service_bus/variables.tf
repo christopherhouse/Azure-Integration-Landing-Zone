@@ -22,18 +22,6 @@ variable "capacity_units" {
   }
 }
 
-variable "availability_zones" {
-  description = "List of Availability Zones in which the Service Bus namespace will be deployed. Valid values are 1, 2, or 3 (or empty list for no AZ configuration)."
-  type        = list(string)
-  default     = []
-  validation {
-    condition = length(var.availability_zones) <= 3 && alltrue([
-      for zone in var.availability_zones : contains(["1", "2", "3"], zone)
-    ])
-    error_message = "Availability zones must be a subset of [\"1\", \"2\", \"3\"] with at most 3 elements."
-  }
-}
-
 variable "log_analytics_workspace_id" {
   description = "The ID of the Log Analytics workspace to which diagnostic logs will be sent."
   type        = string

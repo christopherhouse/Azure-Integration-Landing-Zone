@@ -153,7 +153,6 @@ deploy_api_management = true
 deploy_app_service_environment = true
 deploy_service_bus = true
 service_bus_capacity_units = 1
-service_bus_availability_zones = ["1", "2", "3"]
 
 storage_accounts = [
   {

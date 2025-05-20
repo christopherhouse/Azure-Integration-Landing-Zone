@@ -4,7 +4,6 @@ resource "azurerm_servicebus_namespace" "this" {
   resource_group_name = var.resource_group_name
   sku                 = "Premium" # Always Premium SKU as per requirement
   capacity            = var.capacity_units
-  zone_redundant      = length(var.availability_zones) > 0
 
   tags = var.tags
 }

@@ -143,7 +143,6 @@ module "service_bus" {
   location            = data.azurerm_resource_group.rg.location
   resource_group_name = data.azurerm_resource_group.rg.name
   capacity_units      = var.service_bus_capacity_units
-  availability_zones  = var.service_bus_availability_zones
   log_analytics_workspace_id = module.log_analytics.workspace_id
   subnet_id           = module.vnet.subnet_ids["private-endpoints"]
   vnet_id             = module.vnet.vnet_id
