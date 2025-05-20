@@ -135,3 +135,17 @@ module "storage_accounts" {
   file_shares      = lookup(each.value, "file_shares", [])
   tags             = var.tags
 }
+
+module "service_bus" {
+  count               = var.deploy_service_bus ? 1 : 0
+  source              = "./modules/service_bus"
+  name                = module.names.service_bus_namespace_name
+  location            = data.azurerm_resource_group.rg.location
+  resource_group_name = data.azurerm_resource_group.rg.name
+  capacity_units      = var.service_bus_capacity_units
+  availability_zones  = var.service_bus_availability_zones
+  log_analytics_workspace_id = module.log_analytics.workspace_id
+  subnet_id           = module.vnet.subnet_ids["private-endpoints"]
+  vnet_id             = module.vnet.vnet_id
+  tags                = var.tags
+}

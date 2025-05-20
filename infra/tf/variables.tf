@@ -153,6 +153,34 @@ variable "storage_accounts" {
   default = []
 }
 
+variable "deploy_service_bus" {
+  description = "Controls whether the Service Bus module is deployed"
+  type        = bool
+  default     = false
+}
+
+variable "service_bus_capacity_units" {
+  description = "Specifies the capacity units for the Service Bus namespace (Premium tier only). Valid values are 1, 2, 4, 8, or 16."
+  type        = number
+  default     = 1
+  validation {
+    condition     = contains([1, 2, 4, 8, 16], var.service_bus_capacity_units)
+    error_message = "Capacity units must be one of: 1, 2, 4, 8, or 16."
+  }
+}
+
+variable "service_bus_availability_zones" {
+  description = "List of Availability Zones in which the Service Bus namespace will be deployed. Valid values are 1, 2, or 3 (or empty list for no AZ configuration)."
+  type        = list(string)
+  default     = []
+  validation {
+    condition     = length(var.service_bus_availability_zones) <= 3 && alltrue([
+      for zone in var.service_bus_availability_zones : contains(["1", "2", "3"], zone)
+    ])
+    error_message = "Availability zones must be a subset of [\"1\", \"2\", \"3\"] with at most 3 elements."
+  }
+}
+
 variable "tags" {
   description = "A map of tags to assign to all resources."
   type        = map(string)
