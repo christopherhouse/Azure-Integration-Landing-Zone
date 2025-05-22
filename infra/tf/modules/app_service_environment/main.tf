@@ -1,12 +1,12 @@
 // Deploys an internal App Service Environment (ASE) with a private DNS zone
 
 resource "azurerm_app_service_environment_v3" "app_service_environment" {
-  name                = var.app_service_environment_name
-  resource_group_name = var.resource_group_name
-  subnet_id           = var.subnet_id
+  name                         = var.app_service_environment_name
+  resource_group_name          = var.resource_group_name
+  subnet_id                    = var.subnet_id
   internal_load_balancing_mode = "Web, Publishing"
-  zone_redundant      = false
-  tags                = var.tags
+  zone_redundant               = false
+  tags                         = var.tags
   # Add more settings as needed
 }
 

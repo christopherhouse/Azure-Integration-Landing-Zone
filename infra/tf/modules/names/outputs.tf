@@ -33,3 +33,6 @@ output "service_bus_namespace_name" {
 output "firewall_name" {
   value = module.naming.firewall.name_unique
 }
+output "data_factory_name" {
+  value = module.naming.data_factory.name_unique
+}

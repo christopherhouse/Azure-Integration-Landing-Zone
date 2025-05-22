@@ -1,10 +1,10 @@
 # Reusable Private Endpoint Module
 resource "azurerm_private_endpoint" "this" {
-  name                = var.name
-  location            = var.location
-  resource_group_name = var.resource_group_name
-  subnet_id           = var.subnet_id
-  tags                = var.tags
+  name                          = var.name
+  location                      = var.location
+  resource_group_name           = var.resource_group_name
+  subnet_id                     = var.subnet_id
+  tags                          = var.tags
   custom_network_interface_name = "nic-${var.name}"
 
   private_service_connection {

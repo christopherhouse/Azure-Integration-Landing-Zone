@@ -23,6 +23,7 @@ Follow these steps when making changes to the Terraform configurations:
 ```
 /
 ├── .github/                 # GitHub-specific files and workflows
+│   └── copilot-instructions.md  # This file
 ├── infra/                   # Infrastructure-related code
 │   └── tf/                  # Terraform configurations
 │       ├── modules/         # Reusable Terraform modules
@@ -32,7 +33,6 @@ Follow these steps when making changes to the Terraform configurations:
 │       ├── terraform.tfvars # Variable values
 │       ├── plan.ps1         # Script to run terraform plan
 │       └── apply.ps1        # Script to run terraform apply
-└── copilot-instructions.md  # This file
 ```
 
 ### 2. Making Changes to Terraform Files
@@ -113,7 +113,7 @@ Only commit changes after successfully running `terraform plan` without errors:
   }
   ```
 
-- **Authentication**: The GitHub Copilot Coding Agent environment is configured with necessary Azure credentials through GitHub Actions workflow (see `.github/workflows/copilot-setup.yml`).
+- **Authentication**: The GitHub Copilot Coding Agent environment is configured with necessary Azure credentials through GitHub Actions workflow (see `.github/workflows/copilot-setup-steps.yml`).
 
 - **Never Commit**: 
   - Terraform state files (`.tfstate`, `.tfstate.backup`)
@@ -123,6 +123,6 @@ Only commit changes after successfully running `terraform plan` without errors:
 
 ## Resources
 
-- [Azure Integration Landing Zone README](./README.md)
+- [Azure Integration Landing Zone README](../README.md)
 - [Terraform Azure Provider Documentation](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs)
 - [GitHub Copilot Documentation](https://docs.github.com/en/copilot)

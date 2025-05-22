@@ -63,9 +63,9 @@ variable "create_private_dns_zone" {
 variable "blob_containers" {
   description = "List of blob containers to create. Each item is an object with name, public_access, metadata, etc."
   type = list(object({
-    name           = string
-    public_access  = optional(string)
-    metadata       = optional(map(string))
+    name                  = string
+    public_access         = optional(string)
+    metadata              = optional(map(string))
     container_access_type = optional(string)
   }))
   default = []
