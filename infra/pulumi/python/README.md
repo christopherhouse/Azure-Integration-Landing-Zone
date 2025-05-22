@@ -93,7 +93,20 @@ pulumi preview
 pulumi up
 ```
 
-### 6. Clean Up Resources (When No Longer Needed)
+### 6. Development and Testing
+
+```sh
+# Format code
+python -m black .
+
+# Run linting
+python -m pylint lz tests
+
+# Run unit tests
+python -m pytest
+```
+
+### 7. Clean Up Resources (When No Longer Needed)
 
 ```sh
 pulumi destroy
