@@ -46,7 +46,8 @@ class TestVirtualNetwork:
 
         pulumi.runtime.set_mocks(MockResourceMonitor())
         yield
-        pulumi.runtime.reset_mocks()
+        # Remove reset_mocks call
+        # pulumi.runtime.reset_mocks()
 
     def test_vnet_creation(self, mocks):
         """Test that a virtual network is created with the correct settings."""
@@ -80,12 +81,13 @@ class TestVirtualNetwork:
             pulumi.export("vnet_id", vnet.id)
             pulumi.export("default_subnet_id", vnet.get_subnet_id("default"))
             pulumi.export("ase_subnet_id", vnet.get_subnet_id("ase"))
+            return vnet
 
         # Execute the Pulumi program and verify the outputs
         pulumi.runtime.test_mode = True
-        stack = pulumi.test.test_with_mocks(create_test_vnet, mocks)
+        outputs = pulumi.runtime.test(create_test_vnet)
 
         # Check the outputs
-        assert "vnet-test-lz" in stack.outputs["vnet_id"].value
-        assert "default" in stack.outputs["default_subnet_id"].value
-        assert "ase" in stack.outputs["ase_subnet_id"].value
+        assert "vnet-test-lz" in outputs.get("vnet_id")
+        assert "default" in outputs.get("default_subnet_id")
+        assert "ase" in outputs.get("ase_subnet_id")

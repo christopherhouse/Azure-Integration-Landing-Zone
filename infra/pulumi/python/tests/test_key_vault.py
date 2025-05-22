@@ -57,7 +57,8 @@ class TestKeyVault:
 
         pulumi.runtime.set_mocks(MockResourceMonitor())
         yield
-        pulumi.runtime.reset_mocks()
+        # Remove reset_mocks call
+        # pulumi.runtime.reset_mocks()
 
     def test_key_vault_creation(self, mocks):
         """Test that a Key Vault is created with the correct settings."""
@@ -80,12 +81,13 @@ class TestKeyVault:
             pulumi.export("key_vault_id", kv.id)
             pulumi.export("key_vault_name", kv.name)
             pulumi.export("key_vault_uri", kv.uri)
+            return kv
 
         # Execute the Pulumi program and verify the outputs
         pulumi.runtime.test_mode = True
-        stack = pulumi.test.test_with_mocks(create_test_key_vault, mocks)
+        outputs = pulumi.runtime.test(create_test_key_vault)
 
         # Check the outputs
-        assert "kv-test-lz" in stack.outputs["key_vault_id"].value
-        assert stack.outputs["key_vault_name"].value == "kv-test-lz"
-        assert stack.outputs["key_vault_uri"].value == "https://kv-test-lz.vault.azure.net/"
+        assert "kv-test-lz" in outputs.get("key_vault_id")
+        assert outputs.get("key_vault_name") == "kv-test-lz"
+        assert outputs.get("key_vault_uri") == "https://kv-test-lz.vault.azure.net/"

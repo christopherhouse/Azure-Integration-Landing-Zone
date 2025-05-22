@@ -31,7 +31,8 @@ class TestLogAnalyticsWorkspace:
 
         pulumi.runtime.set_mocks(MockResourceMonitor())
         yield
-        pulumi.runtime.reset_mocks()
+        # Remove reset_mocks call as it doesn't exist
+        # pulumi.runtime.reset_mocks()
 
     def test_workspace_creation(self, mocks):
         """Test that a Log Analytics workspace is created with the correct settings."""
@@ -48,11 +49,13 @@ class TestLogAnalyticsWorkspace:
             # Check that the ID is output
             pulumi.export("workspace_id", workspace.id)
             pulumi.export("workspace_name", workspace.name)
+            return workspace
 
         # Execute the Pulumi program and verify the outputs
         pulumi.runtime.test_mode = True
-        stack = pulumi.test.test_with_mocks(create_test_workspace, mocks)
-
+        # Use pulumi.runtime.test() instead of pulumi.test.test_with_mocks
+        outputs = pulumi.runtime.test(create_test_workspace)
+        
         # Check that the workspace has the expected properties
-        assert stack.outputs["workspace_name"].value == "log-test-lz"
-        assert "rg-test" in stack.outputs["workspace_id"].value
+        assert outputs.get("workspace_name") == "log-test-lz"
+        assert "rg-test" in outputs.get("workspace_id")

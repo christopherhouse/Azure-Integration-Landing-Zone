@@ -68,7 +68,8 @@ class TestStorageAccount:
 
         pulumi.runtime.set_mocks(MockResourceMonitor())
         yield
-        pulumi.runtime.reset_mocks()
+        # Remove reset_mocks call
+        # pulumi.runtime.reset_mocks()
 
     def test_storage_account_creation(self, mocks):
         """Test that a Storage Account is created with the correct settings."""
@@ -108,11 +109,12 @@ class TestStorageAccount:
             # Check that we can access the property getters
             pulumi.export("storage_account_id", storage_account.id)
             pulumi.export("storage_account_name", storage_account.name)
+            return storage_account
 
         # Execute the Pulumi program and verify the outputs
         pulumi.runtime.test_mode = True
-        stack = pulumi.test.test_with_mocks(create_test_storage_account, mocks)
+        outputs = pulumi.runtime.test(create_test_storage_account)
 
         # Check the outputs
-        assert "satest" in stack.outputs["storage_account_id"].value
-        assert stack.outputs["storage_account_name"].value == "satest"
+        assert "satest" in outputs.get("storage_account_id")
+        assert outputs.get("storage_account_name") == "satest"

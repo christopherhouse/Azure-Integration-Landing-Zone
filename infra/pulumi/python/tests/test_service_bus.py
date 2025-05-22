@@ -64,7 +64,8 @@ class TestServiceBus:
 
         pulumi.runtime.set_mocks(MockResourceMonitor())
         yield
-        pulumi.runtime.reset_mocks()
+        # Remove reset_mocks call
+        # pulumi.runtime.reset_mocks()
 
     def test_service_bus_creation(self, mocks):
         """Test that a Service Bus namespace is created with the correct settings."""
@@ -106,11 +107,12 @@ class TestServiceBus:
             # Check that we can access the property getters
             pulumi.export("service_bus_id", service_bus.id)
             pulumi.export("service_bus_name", service_bus.name)
+            return service_bus
 
         # Execute the Pulumi program and verify the outputs
         pulumi.runtime.test_mode = True
-        stack = pulumi.test.test_with_mocks(create_test_service_bus, mocks)
+        outputs = pulumi.runtime.test(create_test_service_bus)
 
         # Check the outputs
-        assert "sb-test-lz" in stack.outputs["service_bus_id"].value
-        assert stack.outputs["service_bus_name"].value == "sb-test-lz"
+        assert "sb-test-lz" in outputs.get("service_bus_id")
+        assert outputs.get("service_bus_name") == "sb-test-lz"

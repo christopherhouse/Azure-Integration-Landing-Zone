@@ -46,7 +46,8 @@ class TestApiManagement:
 
         pulumi.runtime.set_mocks(MockResourceMonitor())
         yield
-        pulumi.runtime.reset_mocks()
+        # Remove reset_mocks call
+        # pulumi.runtime.reset_mocks()
 
     def test_api_management_creation(self, mocks):
         """Test that an API Management instance is created with the correct settings."""
@@ -70,12 +71,13 @@ class TestApiManagement:
             pulumi.export("apim_id", apim.id)
             pulumi.export("apim_name", apim.name)
             pulumi.export("apim_gateway_url", apim.gateway_url)
+            return apim
 
         # Execute the Pulumi program and verify the outputs
         pulumi.runtime.test_mode = True
-        stack = pulumi.test.test_with_mocks(create_test_apim, mocks)
+        outputs = pulumi.runtime.test(create_test_apim)
 
         # Check the outputs
-        assert "apim-test-lz" in stack.outputs["apim_id"].value
-        assert stack.outputs["apim_name"].value == "apim-test-lz"
-        assert stack.outputs["apim_gateway_url"].value == "https://apim-test-lz.azure-api.net"
+        assert "apim-test-lz" in outputs.get("apim_id")
+        assert outputs.get("apim_name") == "apim-test-lz"
+        assert outputs.get("apim_gateway_url") == "https://apim-test-lz.azure-api.net"
