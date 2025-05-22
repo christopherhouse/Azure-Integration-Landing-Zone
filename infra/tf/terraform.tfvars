@@ -137,7 +137,7 @@ vnet_subnets = [
     }
     route_table      = null
     delegation       = null
-    service_endpoints = []
+    service_endpoints = ["Microsoft.Storage", "Microsoft.Sql", "Microsoft.KeyVault", "Microsoft.EventHub", "Microsoft.ServiceBus"]
   },
   {
     name             = "AzureFirewallSubnet"
@@ -254,6 +254,36 @@ azure_firewall_network_rules = [
     destination_addresses = ["AzureMonitor"]
     destination_ports     = ["443"]
     protocols             = ["TCP"]
+  },
+  {
+    name                  = "AllowApiManagementAPIs"
+    description           = "Allow traffic to API Management APIs"
+    priority              = 110
+    action                = "Allow"
+    source_addresses      = ["10.10.3.0/24"] # APIM subnet
+    destination_addresses = ["ApiManagement"]
+    destination_ports     = ["3443"]
+    protocols             = ["TCP"]
+  },
+  {
+    name                  = "AllowAzureActiveDirectory"
+    description           = "Allow traffic to Azure Active Directory"
+    priority              = 120
+    action                = "Allow"
+    source_addresses      = ["10.10.3.0/24"] # APIM subnet
+    destination_addresses = ["AzureActiveDirectory"]
+    destination_ports     = ["443"]
+    protocols             = ["TCP"]
+  },
+  {
+    name                  = "AllowAzureResourceManager"
+    description           = "Allow traffic to Azure Resource Manager"
+    priority              = 130
+    action                = "Allow"
+    source_addresses      = ["10.10.3.0/24"] # APIM subnet
+    destination_addresses = ["AzureResourceManager"]
+    destination_ports     = ["443"]
+    protocols             = ["TCP"]
   }
 ]
 
@@ -273,6 +303,55 @@ azure_firewall_application_rules = [
       {
         port = "80"
         type = "Http"
+      }
+    ]
+  },
+  {
+    name             = "AllowApiManagementRequiredServices"
+    description      = "Allow traffic to Azure API Management required services"
+    priority         = 110
+    action           = "Allow"
+    source_addresses = ["10.10.3.0/24"] # APIM subnet
+    target_fqdns     = [
+      "management.azure.com",
+      "login.microsoftonline.com",
+      "login.windows.net",
+      "*.core.windows.net", 
+      "*.frontend.applicationinsights.azure.com",
+      "*.monitoring.azure.com",
+      "dc.services.visualstudio.com",
+      "*.servicebus.windows.net",
+      "*.events.data.microsoft.com",
+      "global.metrics.nsatc.net",
+      "shoebox2.events.data.microsoft.com"
+    ]
+    protocols = [
+      {
+        port = "443"
+        type = "Https"
+      }
+    ]
+  },
+  {
+    name             = "AllowApiManagementExtendedServices"
+    description      = "Allow traffic to extended API Management services"
+    priority         = 120
+    action           = "Allow"
+    source_addresses = ["10.10.3.0/24"] # APIM subnet
+    target_fqdns     = [
+      "whatismyipaddress.com", # For diagnostics 
+      "*.azureedge.net",
+      "*.azure-api.net", 
+      "waws-prod-*.cloudapp.net",
+      "*.cloudapp.azure.com",
+      "github.com", 
+      "api.github.com", 
+      "raw.githubusercontent.com"
+    ]
+    protocols = [
+      {
+        port = "443"
+        type = "Https"
       }
     ]
   }
