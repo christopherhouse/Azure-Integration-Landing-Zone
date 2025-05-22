@@ -1,0 +1,6 @@
+name: azure-integration-landing-zone
+runtime:
+  name: python
+  options:
+    virtualenv: venv
+description: Azure Integration Landing Zone implemented with Pulumi in Python
