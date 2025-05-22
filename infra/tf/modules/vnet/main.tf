@@ -3,7 +3,7 @@ resource "azurerm_virtual_network" "this" {
   location            = var.location
   resource_group_name = var.resource_group_name
   address_space       = var.address_spaces
-  tags                 = var.tags
+  tags                = var.tags
 }
 
 resource "azurerm_subnet" "this" {
@@ -55,8 +55,8 @@ resource "azurerm_network_security_group" "subnet_nsg" {
 }
 
 resource "azurerm_subnet_network_security_group_association" "subnet_nsg_assoc" {
-  for_each       = { for s in var.subnets : s.name => s if s.nsg != null }
-  subnet_id      = azurerm_subnet.this[each.key].id
+  for_each                  = { for s in var.subnets : s.name => s if s.nsg != null }
+  subnet_id                 = azurerm_subnet.this[each.key].id
   network_security_group_id = azurerm_network_security_group.subnet_nsg[each.key].id
 }
 

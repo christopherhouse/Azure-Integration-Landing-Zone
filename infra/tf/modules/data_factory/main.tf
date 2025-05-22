@@ -34,13 +34,7 @@ resource "azurerm_data_factory_managed_private_endpoint" "this" {
   data_factory_id    = azurerm_data_factory.this.id
   target_resource_id = each.value.target_resource_id
   subresource_name   = each.value.subresource_name
-
-  dynamic "fqdns" {
-    for_each = length(each.value.fqdns) > 0 ? [1] : []
-    content {
-      fqdns = each.value.fqdns
-    }
-  }
+  fqdns              = each.value.fqdns
 }
 
 resource "azurerm_monitor_diagnostic_setting" "data_factory_diag" {
