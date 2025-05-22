@@ -14,6 +14,7 @@ This repository provides a modular, production-ready Terraform codebase for depl
   - Azure Key Vault (with RBAC, diagnostics, and security best practices)
   - Azure API Management (internal VNet integration, diagnostics, identity, and logging)
   - Azure Service Bus (Premium tier, private endpoint, and availability zone support)
+  - Azure Firewall (Standard SKU, force tunneling, network/application/NAT rules)
   - Azure Naming module integration for consistent resource names
 
 - **Best Practices**:  
@@ -279,6 +280,106 @@ A complete example implementation is available in the [examples/service_bus](/in
   - Dead-lettering on expiration
 
 This module is ideal for organizations requiring a robust messaging infrastructure with enterprise-grade security, reliability, and scalability.
+
+---
+
+## 🔹 Azure Firewall Module
+
+> **This module is optional.**
+
+The **Azure Firewall** module provisions an Azure Firewall with:
+- Standard SKU with built-in high availability
+- Force tunneling for controlling outbound traffic
+- Flexible rule configuration for network, application, and NAT rules
+- Complete integration with Log Analytics for monitoring
+
+### Features
+
+- Creates an Azure Firewall with Standard SKU
+- Enables force tunneling for controlling outbound traffic
+- Configures network rules for filtering traffic based on source, destination, port, and protocol
+- Configures application rules for filtering outbound HTTP/S traffic based on FQDNs
+- Configures NAT rules for translating and filtering inbound traffic
+- Integrates with Log Analytics for comprehensive monitoring and logging
+
+### Inputs
+
+| Name | Description | Type | Default | Required |
+|------|-------------|------|---------|----------| 
+| name | The name of the Azure Firewall | `string` | n/a | yes |
+| location | The Azure region where resources should be created | `string` | n/a | yes |
+| resource_group_name | The name of the resource group | `string` | n/a | yes |
+| sku_tier | The SKU tier of the firewall (Standard or Premium) | `string` | `"Standard"` | no |
+| subnet_id | The ID of the subnet for Azure Firewall | `string` | n/a | yes |
+| enable_force_tunneling | Enable force tunneling for Azure Firewall | `bool` | `true` | no |
+| force_tunneling_subnet_id | The ID of the subnet for Azure Firewall's force tunneling | `string` | n/a | yes |
+| log_analytics_workspace_id | The ID of the Log Analytics workspace for diagnostic logs | `string` | n/a | yes |
+| network_rules | List of network rules to apply to the firewall | `list(object)` | `[]` | no |
+| application_rules | List of application rules to apply to the firewall | `list(object)` | `[]` | no |
+| nat_rules | List of NAT rules to apply to the firewall | `list(object)` | `[]` | no |
+
+### Example Implementation
+
+```hcl
+module "azure_firewall" {
+  source                    = "./modules/azure_firewall"
+  name                      = module.names.firewall_name
+  location                  = var.location
+  resource_group_name       = var.resource_group_name
+  subnet_id                 = module.vnet.subnet_ids["AzureFirewallSubnet"]
+  enable_force_tunneling    = true
+  force_tunneling_subnet_id = module.vnet.subnet_ids["AzureFirewallManagementSubnet"]
+  log_analytics_workspace_id = module.log_analytics.workspace_id
+  
+  # Network rules for outbound traffic
+  network_rules = [
+    {
+      name                  = "AllowAzureMonitor"
+      description           = "Allow traffic to Azure Monitor"
+      priority              = 100
+      action                = "Allow"
+      source_addresses      = ["10.10.0.0/16"]
+      destination_addresses = ["AzureMonitor"]
+      destination_ports     = ["443"]
+      protocols             = ["TCP"]
+    }
+  ]
+  
+  # Application rules for web traffic
+  application_rules = [
+    {
+      name             = "AllowMicrosoftDocs"
+      description      = "Allow traffic to Microsoft Docs"
+      priority         = 100
+      action           = "Allow"
+      source_addresses = ["10.10.0.0/16"]
+      target_fqdns     = ["*.microsoft.com"]
+      protocols = [
+        {
+          port = "443"
+          type = "Https"
+        }
+      ]
+    }
+  ]
+  
+  # NAT rules for inbound traffic
+  nat_rules = [
+    {
+      name                = "InboundToAPIM"
+      description         = "Inbound NAT rule to APIM private interface"
+      priority            = 100
+      action              = "Dnat"
+      source_addresses    = ["*"]
+      destination_address = azurerm_public_ip.example.ip_address
+      destination_ports   = ["443"]
+      protocols           = ["TCP"]
+      translated_address  = module.apim.private_ip_address
+      translated_port     = "443"
+    }
+  ]
+}
+```
 
 ---
 
