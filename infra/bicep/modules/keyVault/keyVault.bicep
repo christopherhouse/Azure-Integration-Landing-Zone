@@ -62,7 +62,7 @@ resource diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-pr
   }
 }
 
-module privateDnsZone '../private_dns_zone/private_dns_zone.bicep' = {
+module privateDnsZone '../privateDnsZone/privateDnsZone.bicep' = {
   name: 'kv-dns-zone'
   params: {
     zoneName: 'privatelink.vaultcore.azure.net'
@@ -72,7 +72,7 @@ module privateDnsZone '../private_dns_zone/private_dns_zone.bicep' = {
   }
 }
 
-module privateEndpoint '../private_endpoint/private_endpoint.bicep' = {
+module privateEndpoint '../privateEndpoint/privateEndpoint.bicep' = {
   name: 'kv-private-endpoint'
   params: {
     name: '${keyVaultName}-pe'

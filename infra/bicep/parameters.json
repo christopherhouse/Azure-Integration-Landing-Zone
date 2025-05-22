@@ -23,7 +23,7 @@
       "value": [
         {
           "name": "apim",
-          "address_prefixes": [
+          "addressPrefixes": [
             "10.0.1.0/24"
           ],
           "serviceEndpoints": [
@@ -32,17 +32,17 @@
           ],
           "nsg": {
             "name": "apim-nsg",
-            "security_rules": [
+            "securityRules": [
               {
                 "name": "Allow_APIM_Management_Inbound",
                 "priority": 100,
                 "direction": "Inbound",
                 "access": "Allow",
                 "protocol": "Tcp",
-                "source_port_range": "*",
-                "destination_port_range": "3443",
-                "source_address_prefix": "ApiManagement",
-                "destination_address_prefix": "VirtualNetwork",
+                "sourcePortRange": "*",
+                "destinationPortRange": "3443",
+                "sourceAddressPrefix": "ApiManagement",
+                "destinationAddressPrefix": "VirtualNetwork",
                 "description": "Allow APIM management traffic"
               }
             ]
@@ -50,12 +50,12 @@
         },
         {
           "name": "ase",
-          "address_prefixes": [
+          "addressPrefixes": [
             "10.0.2.0/24"
           ],
           "delegation": {
             "name": "ase-delegation",
-            "service_name": "Microsoft.Web/hostingEnvironments",
+            "serviceName": "Microsoft.Web/hostingEnvironments",
             "actions": [
               "Microsoft.Network/virtualNetworks/subnets/action"
             ]
@@ -63,7 +63,7 @@
         },
         {
           "name": "private-endpoints",
-          "address_prefixes": [
+          "addressPrefixes": [
             "10.0.3.0/24"
           ]
         }
@@ -102,23 +102,23 @@
     "storageAccounts": {
       "value": [
         {
-          "name_prefix": "integration",
-          "sku_name": "Standard_LRS",
-          "account_kind": "StorageV2",
-          "access_tier": "Hot",
-          "private_endpoints": [
+          "namePrefix": "integration",
+          "skuName": "Standard_LRS",
+          "accountKind": "StorageV2",
+          "accessTier": "Hot",
+          "privateEndpoints": [
             "blob",
             "file"
           ],
-          "create_private_dns_zone": true,
-          "blob_containers": [
+          "createPrivateDnsZone": true,
+          "blobContainers": [
             {
               "name": "archive",
-              "container_access_type": "private"
+              "containerAccessType": "private"
             },
             {
               "name": "incoming",
-              "container_access_type": "private"
+              "containerAccessType": "private"
             }
           ]
         }

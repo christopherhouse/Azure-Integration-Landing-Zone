@@ -161,7 +161,7 @@ resource diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-pr
   }
 }
 
-module privateDnsZone '../private_dns_zone/private_dns_zone.bicep' = {
+module privateDnsZone '../privateDnsZone/privateDnsZone.bicep' = {
   name: 'sb-dns-zone'
   params: {
     zoneName: 'privatelink.servicebus.windows.net'
@@ -171,7 +171,7 @@ module privateDnsZone '../private_dns_zone/private_dns_zone.bicep' = {
   }
 }
 
-module privateEndpoint '../private_endpoint/private_endpoint.bicep' = {
+module privateEndpoint '../privateEndpoint/privateEndpoint.bicep' = {
   name: 'sb-private-endpoint'
   params: {
     name: '${name}-pe'

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.35.1.17967",
-      "templateHash": "11074154149797307"
+      "templateHash": "7478219439332715363"
     }
   },
   "parameters": {
@@ -1369,7 +1369,7 @@
       },
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
-      "name": "[format('storageAccountNames-{0}', parameters('storageAccounts')[copyIndex()].name_prefix)]",
+      "name": "[format('storageAccountNames-{0}', parameters('storageAccounts')[copyIndex()].namePrefix)]",
       "resourceGroup": "[parameters('resourceGroupName')]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -1384,7 +1384,7 @@
             "value": "[parameters('environment')]"
           },
           "workloadName": {
-            "value": "[parameters('storageAccounts')[copyIndex()].name_prefix]"
+            "value": "[parameters('storageAccounts')[copyIndex()].namePrefix]"
           }
         },
         "template": {
@@ -1482,7 +1482,7 @@
       },
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
-      "name": "[format('storageAccount-{0}', parameters('storageAccounts')[copyIndex()].name_prefix)]",
+      "name": "[format('storageAccount-{0}', parameters('storageAccounts')[copyIndex()].namePrefix)]",
       "resourceGroup": "[parameters('resourceGroupName')]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -1491,7 +1491,7 @@
         "mode": "Incremental",
         "parameters": {
           "storageAccountName": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('storageAccountNames-{0}', parameters('storageAccounts')[copyIndex()].name_prefix)), '2022-09-01').outputs.storageAccountName.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('storageAccountNames-{0}', parameters('storageAccounts')[copyIndex()].namePrefix)), '2022-09-01').outputs.storageAccountName.value]"
           },
           "location": {
             "value": "[parameters('location')]"
@@ -1841,7 +1841,7 @@
       },
       "dependsOn": [
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'logAnalytics')]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('storageAccountNames-{0}', parameters('storageAccounts')[copyIndex()].name_prefix))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('storageAccountNames-{0}', parameters('storageAccounts')[copyIndex()].namePrefix))]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'vnet')]"
       ]
     },

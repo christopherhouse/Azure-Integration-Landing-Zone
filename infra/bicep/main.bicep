@@ -95,7 +95,7 @@ module names 'modules/names/names.bicep' = {
 }
 
 // Log Analytics module
-module logAnalytics 'modules/log_analytics/log_analytics.bicep' = {
+module logAnalytics 'modules/logAnalytics/logAnalytics.bicep' = {
   name: 'logAnalytics'
   scope: resourceGroup(resourceGroupName)
   params: {
@@ -119,7 +119,7 @@ module vnet 'modules/vnet/vnet.bicep' = {
 }
 
 // Key Vault module
-module keyVault 'modules/key_vault/key_vault.bicep' = {
+module keyVault 'modules/keyVault/keyVault.bicep' = {
   name: 'keyVault'
   scope: resourceGroup(resourceGroupName)
   params: {
@@ -136,7 +136,7 @@ module keyVault 'modules/key_vault/key_vault.bicep' = {
 }
 
 // API Management module
-module apiManagement 'modules/api_management/api_management.bicep' = if (deployApiManagement) {
+module apiManagement 'modules/apiManagement/apiManagement.bicep' = if (deployApiManagement) {
   name: 'apiManagement'
   scope: resourceGroup(resourceGroupName)
   params: {
@@ -155,7 +155,7 @@ module apiManagement 'modules/api_management/api_management.bicep' = if (deployA
 }
 
 // App Service Environment module
-module appServiceEnvironment 'modules/app_service_environment/app_service_environment.bicep' = if (deployAppServiceEnvironment) {
+module appServiceEnvironment 'modules/appServiceEnvironment/appServiceEnvironment.bicep' = if (deployAppServiceEnvironment) {
   name: 'appServiceEnvironment'
   scope: resourceGroup(resourceGroupName)
   params: {
@@ -168,18 +168,18 @@ module appServiceEnvironment 'modules/app_service_environment/app_service_enviro
 
 // Storage Account names
 module storageAccountNames 'modules/names/names.bicep' = [for sa in storageAccounts: {
-  name: 'storageAccountNames-${sa.name_prefix}'
+  name: 'storageAccountNames-${sa.namePrefix}'
   scope: resourceGroup(resourceGroupName)
   params: {
     suffix: suffix
     environment: environment
-    workloadName: sa.name_prefix
+    workloadName: sa.namePrefix
   }
 }]
 
 // Storage Accounts
-module storageAccountsDeployment 'modules/storage_account/storage_account.bicep' = [for (sa, i) in storageAccounts: {
-  name: 'storageAccount-${sa.name_prefix}'
+module storageAccountsDeployment 'modules/storageAccount/storageAccount.bicep' = [for (sa, i) in storageAccounts: {
+  name: 'storageAccount-${sa.namePrefix}'
   scope: resourceGroup(resourceGroupName)
   params: {
     storageAccountName: storageAccountNames[i].outputs.storageAccountName
@@ -203,7 +203,7 @@ module storageAccountsDeployment 'modules/storage_account/storage_account.bicep'
 }]
 
 // Service Bus module
-module serviceBus 'modules/service_bus/service_bus.bicep' = if (deployServiceBus) {
+module serviceBus 'modules/serviceBus/serviceBus.bicep' = if (deployServiceBus) {
   name: 'serviceBus'
   scope: resourceGroup(resourceGroupName)
   params: {
