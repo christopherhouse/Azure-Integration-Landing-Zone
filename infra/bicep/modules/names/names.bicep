@@ -13,58 +13,26 @@ var suffixArray = [suffix, environment]
 // Define resource name formats based on Azure naming best practices
 // These functions mimic the Azure/naming/azurerm module used in Terraform
 
-// Common resource name function
-@description('Get a unique name for a resource type')
-func getResourceName(resourceType string) string {
-  var maxLength = 80 // default max length
-  var allowedCharacters = 'alphanumeric' // default allowed characters
-
-  // Set specific constraints based on resource type
-  if (resourceType == 'storageAccount') {
-    maxLength = 24
-    allowedCharacters = 'alphanumeric'
-  }
-  else if (resourceType == 'keyVault') {
-    maxLength = 24
-    allowedCharacters = 'alphanumeric'
-  }
-  else if (resourceType == 'logAnalyticsWorkspace') {
-    maxLength = 63
-    allowedCharacters = 'alphanumeric-'
-  }
-  else if (resourceType == 'vnet') {
-    maxLength = 64
-    allowedCharacters = 'alphanumeric-_.'
-  }
-  else if (resourceType == 'apiManagement') {
-    maxLength = 50
-    allowedCharacters = 'alphanumeric-'
-  }
-  else if (resourceType == 'appServiceEnvironment') {
-    maxLength = 40
-    allowedCharacters = 'alphanumeric-'
-  }
-  else if (resourceType == 'serviceBusNamespace') {
-    maxLength = 50
-    allowedCharacters = 'alphanumeric-'
-  }
-
-  // Combine prefix and suffix
-  var nameParts = concat(prefix, [resourceType], suffixArray)
-  var name = join(nameParts, '-')
-
-  // Ensure the name meets Azure requirements
-  return substring(name, 0, min(length(name), maxLength))
+// Helper function to generate resource names
+@description('Generate a resource name based on type and constraints')
+var getResourceNameWithConstraints = {
+  st: take(replace(join(concat(prefix, ['st'], suffixArray), '-'), '-', ''), 24)
+  kv: take(join(concat(prefix, ['kv'], suffixArray), '-'), 24)
+  law: take(join(concat(prefix, ['law'], suffixArray), '-'), 63)
+  vnet: take(join(concat(prefix, ['vnet'], suffixArray), '-'), 64)
+  apim: take(join(concat(prefix, ['apim'], suffixArray), '-'), 50)
+  ase: take(join(concat(prefix, ['ase'], suffixArray), '-'), 40)
+  sb: take(join(concat(prefix, ['sb'], suffixArray), '-'), 50)
 }
 
 // Get resource names
-var storageAccountName = replace(getResourceName('st'), '-', '')
-var keyVaultName = getResourceName('kv')
-var logAnalyticsWorkspaceName = getResourceName('law')
-var vnetName = getResourceName('vnet')
-var apiManagementName = getResourceName('apim')
-var appServiceEnvironmentName = getResourceName('ase')
-var serviceBusNamespaceName = getResourceName('sb')
+var storageAccountName = replace(getResourceNameWithConstraints.st, '-', '')
+var keyVaultName = getResourceNameWithConstraints.kv
+var logAnalyticsWorkspaceName = getResourceNameWithConstraints.law
+var vnetName = getResourceNameWithConstraints.vnet
+var apiManagementName = getResourceNameWithConstraints.apim
+var appServiceEnvironmentName = getResourceNameWithConstraints.ase
+var serviceBusNamespaceName = getResourceNameWithConstraints.sb
 
 // Outputs
 output logAnalyticsWorkspaceName string = logAnalyticsWorkspaceName

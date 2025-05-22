@@ -146,4 +146,4 @@ resource subnetRtAssociation 'Microsoft.Network/virtualNetworks/subnets@2023-04-
 
 // Outputs
 output vnetId string = virtualNetwork.id
-output subnetIds object = {for (sub, i) in subnets: sub.name => subnet[i].id}
+output subnetIds object = reduce(subnets, {}, (result, sub, i) => union(result, { '${sub.name}': subnet[i].id }))

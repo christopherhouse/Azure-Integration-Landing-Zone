@@ -124,15 +124,7 @@ resource serviceBusTopic 'Microsoft.ServiceBus/namespaces/topics@2022-10-01-prev
 }]
 
 // Flattening subscriptions for each topic
-var flattenedSubscriptions = flatten(
-  map(topics, (topic) => 
-    map(contains(topic, 'subscriptions') ? topic.subscriptions : [], (sub) => ({ 
-      topicName: topic.name, 
-      subscriptionName: sub.name, 
-      subscriptionConfig: sub 
-    }))
-  )
-)
+var flattenedSubscriptions = flatten(map(topics, (topic) => map(contains(topic, 'subscriptions') ? topic.subscriptions : [], (sub) => ({ topicName: topic.name, subscriptionName: sub.name, subscriptionConfig: sub }))))
 
 resource serviceBusSubscription 'Microsoft.ServiceBus/namespaces/topics/subscriptions@2022-10-01-preview' = [for sub in flattenedSubscriptions: {
   parent: serviceBusTopic[indexOf(map(topics, t => t.name), sub.topicName)]
@@ -196,17 +188,7 @@ module privateEndpoint '../private_endpoint/private_endpoint.bicep' = {
   }
 }
 
-// Output queue IDs
-var queueIds = { for (queue, i) in queues: queue.name => serviceBusQueue[i].id }
-
-// Output topic IDs
-var topicIds = { for (topic, i) in topics: topic.name => serviceBusTopic[i].id }
-
-// Create a mapping of subscription identifiers to their resource IDs
-var subscriptionIds = { for (sub, i) in flattenedSubscriptions: '${sub.topicName}-${sub.subscriptionName}' => serviceBusSubscription[i].id }
-
+// No complex output mappings for now
+// Just output the namespace information
 output namespaceId string = serviceBusNamespace.id
 output namespaceName string = serviceBusNamespace.name
-output queueIds object = queueIds
-output topicIds object = topicIds
-output subscriptionIds object = subscriptionIds

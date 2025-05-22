@@ -164,7 +164,7 @@ resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-04-01' = [for 
 // Diagnostic Settings for Blob
 resource blobDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
   name: 'diag-blob'
-  scope: storageAccount::blobService
+  scope: resourceId('Microsoft.Storage/storageAccounts/blobServices', storageAccount.name, 'default')
   properties: {
     workspaceId: logAnalyticsWorkspaceId
     logs: [
@@ -193,7 +193,7 @@ resource blobDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-previ
 // Diagnostic Settings for Table
 resource tableDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
   name: 'diag-table'
-  scope: storageAccount::tableService
+  scope: resourceId('Microsoft.Storage/storageAccounts/tableServices', storageAccount.name, 'default')
   properties: {
     workspaceId: logAnalyticsWorkspaceId
     logs: [
@@ -222,7 +222,7 @@ resource tableDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-prev
 // Diagnostic Settings for Queue
 resource queueDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
   name: 'diag-queue'
-  scope: storageAccount::queueService
+  scope: resourceId('Microsoft.Storage/storageAccounts/queueServices', storageAccount.name, 'default')
   properties: {
     workspaceId: logAnalyticsWorkspaceId
     logs: [
@@ -251,7 +251,7 @@ resource queueDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-prev
 // Diagnostic Settings for File
 resource fileDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
   name: 'diag-file'
-  scope: storageAccount::fileService
+  scope: resourceId('Microsoft.Storage/storageAccounts/fileServices', storageAccount.name, 'default')
   properties: {
     workspaceId: logAnalyticsWorkspaceId
     logs: [
@@ -278,6 +278,7 @@ resource fileDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-previ
 }
 
 // References to child services
+/* Removed these references as they use the non-standard syntax
 resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2023-01-01' existing = {
   parent: storageAccount
   name: 'default'
@@ -297,6 +298,7 @@ resource fileService 'Microsoft.Storage/storageAccounts/fileServices@2023-01-01'
   parent: storageAccount
   name: 'default'
 }
+*/
 
 output storageAccountName string = storageAccount.name
 output storageAccountId string = storageAccount.id
