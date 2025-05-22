@@ -14,6 +14,7 @@ This repository provides a modular, production-ready Terraform codebase for depl
   - Azure Key Vault (with RBAC, diagnostics, and security best practices)
   - Azure API Management (internal VNet integration, diagnostics, identity, and logging)
   - Azure Service Bus (Premium tier, private endpoint, and availability zone support)
+  - Azure Data Factory (managed virtual network, private endpoints, and secure connectivity)
   - Azure Naming module integration for consistent resource names
 
 - **Best Practices**:  
@@ -125,6 +126,7 @@ infra/
       key_vault/
       api_management/   # Azure API Management module (optional)
       service_bus/      # Azure Service Bus module (optional)
+      data_factory/     # Azure Data Factory module (optional)
 ```
 
 ---
@@ -175,6 +177,55 @@ You can enable the Service Bus module in your terraform.tfvars:
 ```hcl
 deploy_service_bus = true
 service_bus_capacity_units = 1
+```
+
+---
+
+## 🔹 Data Factory Module
+
+> **This module is optional.**
+
+The **Data Factory** module provisions an Azure Data Factory instance with:
+- Managed virtual network for secure data integration
+- Private endpoint integration for secure, private access
+- Managed private endpoints for connecting to data sources securely
+- System and/or user-assigned managed identity support
+- Diagnostic settings routed to Log Analytics
+- Git integration for CI/CD workflows
+
+This module is ideal for organizations requiring secure data integration and ETL/ELT processes with enterprise-grade security and governance.
+
+### Features
+
+- Enables managed virtual network for secure data integration
+- Supports creation of managed private endpoints for connecting to data sources securely
+- Configures private endpoints for secure access to the Data Factory itself
+- Integrates with Azure RBAC through configurable managed identities
+- Configures diagnostic settings for comprehensive monitoring and logging
+- Supports Git integration for CI/CD pipelines
+- Implements networking security best practices by default
+
+### Usage
+
+You can enable the Data Factory module in your terraform.tfvars:
+
+```hcl
+deploy_data_factory = true
+data_factory_public_network_enabled = false  # Disable public network access for security
+
+# Configure managed private endpoints to connect to your data sources
+data_factory_managed_private_endpoints = [
+  {
+    name = "sql-server-endpoint"
+    target_resource_id = "/subscriptions/{subscription_id}/resourceGroups/{resource_group}/providers/Microsoft.Sql/servers/{server_name}"
+    subresource_name = "sqlServer"
+  },
+  {
+    name = "storage-endpoint"
+    target_resource_id = "/subscriptions/{subscription_id}/resourceGroups/{resource_group}/providers/Microsoft.Storage/storageAccounts/{storage_account_name}"
+    subresource_name = "blob"
+  }
+]
 ```
 
 Then, you can either use the default examples or customize queue and topic configurations:

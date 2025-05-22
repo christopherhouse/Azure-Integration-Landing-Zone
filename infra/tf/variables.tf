@@ -209,6 +209,52 @@ variable "service_bus_topics" {
   default = []
 }
 
+variable "deploy_data_factory" {
+  description = "Controls whether the Data Factory module is deployed"
+  type        = bool
+  default     = false
+}
+
+variable "data_factory_managed_private_endpoints" {
+  description = "List of managed private endpoints to create in the Data Factory managed virtual network"
+  type = list(object({
+    name               = string
+    target_resource_id = string
+    subresource_name   = string
+    fqdns              = optional(list(string), [])
+  }))
+  default = []
+}
+
+variable "data_factory_git_configuration" {
+  description = "Git configuration for the Data Factory"
+  type = object({
+    account_name    = string
+    repository_name = string
+    branch_name     = string
+    root_folder     = string
+  })
+  default = null
+}
+
+variable "data_factory_public_network_enabled" {
+  description = "Specifies whether public access is allowed to the Data Factory."
+  type        = bool
+  default     = false
+}
+
+variable "data_factory_identity_type" {
+  description = "The type of identity to use for the Data Factory. Valid values are 'SystemAssigned' or 'UserAssigned' or 'SystemAssigned,UserAssigned'"
+  type        = string
+  default     = "SystemAssigned"
+}
+
+variable "data_factory_user_assigned_identity_ids" {
+  description = "List of user-assigned managed identity IDs to associate with the Data Factory."
+  type        = list(string)
+  default     = []
+}
+
 variable "tags" {
   description = "A map of tags to assign to all resources."
   type        = map(string)

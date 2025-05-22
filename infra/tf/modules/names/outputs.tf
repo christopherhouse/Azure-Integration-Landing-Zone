@@ -29,3 +29,7 @@ output "storage_account_name" {
 output "service_bus_namespace_name" {
   value = module.naming.servicebus_namespace.name_unique
 }
+
+output "data_factory_name" {
+  value = module.naming.data_factory.name_unique
+}
