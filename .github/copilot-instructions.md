@@ -113,7 +113,7 @@ Only commit changes after successfully running `terraform plan` without errors:
   }
   ```
 
-- **Authentication**: The GitHub Copilot Coding Agent environment is configured with necessary Azure credentials through GitHub Actions workflow (see `.github/workflows/copilot-setup.yml`).
+- **Authentication**: The GitHub Copilot Coding Agent environment is configured with necessary Azure credentials through GitHub Actions workflow (see `.github/workflows/copilot-setup-steps.yml`).
 
 - **Never Commit**: 
   - Terraform state files (`.tfstate`, `.tfstate.backup`)

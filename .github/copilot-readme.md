@@ -4,7 +4,7 @@ This repository includes configuration for the GitHub Copilot Coding Agent envir
 
 ## Implementation Details
 
-The customization is implemented using a GitHub Actions workflow in `.github/workflows/copilot-setup.yml` which runs when the Copilot Coding Agent is initialized.
+The customization is implemented using a GitHub Actions workflow in `.github/workflows/copilot-setup-steps.yml` which runs when the Copilot Coding Agent is initialized.
 
 ## Features
 
