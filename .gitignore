@@ -1,0 +1,13 @@
+# Bicep output files
+*.json
+
+# Terraform files
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+crash.log
+*.backup
+*.log
+*tfplan
+*.plan
