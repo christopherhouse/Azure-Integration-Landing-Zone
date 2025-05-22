@@ -94,7 +94,6 @@ apim_user_assigned_identity_ids = []
 # ---
 deploy_service_bus = true
 service_bus_capacity_units = 1
-service_bus_availability_zones = ["1", "2", "3"]
 ```
 
 > **Note:** The API Management (APIM) module is optional. If you do not wish to deploy APIM, set `deploy_api_management = false` or remove the APIM-related variables from your `terraform.tfvars`.
@@ -153,9 +152,131 @@ The **Service Bus** module provisions an Azure Service Bus namespace with:
 - Premium SKU for enterprise-grade messaging capabilities
 - Private endpoint integration for secure, private access
 - Configurable capacity units (1, 2, 4, 8, 16)
-- Optional Availability Zone redundancy (support for 1-3 AZs)
 - Diagnostic settings routed to Log Analytics
 - Private DNS zone integration
+- Queues with configurable properties (size, TTL, delivery count, sessions, dead-lettering)
+- Topics with subscriptions (various subscription properties: TTL, locks, sessions, dead-lettering)
+
+The module includes example queue and topic configurations out of the box. These can be customized or extended based on your specific needs.
+
+### Features
+
+- Creates an Azure Service Bus namespace with Premium SKU
+- Provisions queues with configurable settings (e.g., max size, TTL, partitioning)
+- Provisions topics with configurable settings
+- Provisions subscriptions for topics with configurable properties
+- Integrates with private networking via private endpoints
+- Configures diagnostic settings for monitoring and logging
+
+### Usage
+
+You can enable the Service Bus module in your terraform.tfvars:
+
+```hcl
+deploy_service_bus = true
+service_bus_capacity_units = 1
+```
+
+Then, you can either use the default examples or customize queue and topic configurations:
+
+```hcl
+module "service_bus" {
+  source              = "./modules/service_bus"
+  name                = "sb-integration-dev"
+  location            = "eastus2"
+  resource_group_name = "rg-integration-dev"
+  capacity_units      = 1
+  log_analytics_workspace_id = module.log_analytics.workspace_id
+  subnet_id           = module.vnet.subnet_ids["private-endpoints"]
+  vnet_id             = module.vnet.vnet_id
+  
+  # Define custom queues
+  queues = [
+    {
+      name                  = "orders-queue"
+      max_size_in_megabytes = 1024
+      default_message_ttl   = "P14D"  # 14 days
+      max_delivery_count    = 10
+    },
+    {
+      name                              = "notifications-queue"
+      max_size_in_megabytes             = 1024
+      default_message_ttl               = "P7D"   # 7 days
+      max_delivery_count                = 5
+      requires_session                  = true
+      dead_lettering_on_message_expiration = true
+    }
+  ]
+  
+  # Define custom topics with subscriptions
+  topics = [
+    {
+      name                  = "events"
+      max_size_in_megabytes = 1024
+      default_message_ttl   = "P14D"  # 14 days
+      subscriptions = [
+        {
+          name              = "all-events"
+          max_delivery_count = 10
+        },
+        {
+          name                = "critical-events"
+          max_delivery_count  = 20
+          default_message_ttl = "P7D"  # 7 days
+          requires_session    = true
+        }
+      ]
+    }
+  ]
+  
+  tags = {
+    Environment = "Development"
+  }
+}
+```
+
+### Inputs
+
+| Name | Description | Type | Default | Required |
+|------|-------------|------|---------|----------|
+| name | The name of the Service Bus namespace | `string` | n/a | yes |
+| location | The Azure region where resources should be created | `string` | n/a | yes |
+| resource_group_name | The name of the resource group | `string` | n/a | yes |
+| capacity_units | Specifies the capacity units for the Service Bus namespace (Premium tier only). Valid values are 1, 2, 4, 8, or 16. | `number` | n/a | yes |
+| log_analytics_workspace_id | The ID of the Log Analytics workspace to which diagnostic logs will be sent | `string` | n/a | yes |
+| subnet_id | The ID of the subnet for the private endpoint | `string` | n/a | yes |
+| vnet_id | The ID of the virtual network for the private DNS zone link | `string` | n/a | yes |
+| queues | List of Service Bus queues to create | `list(object)` | `[]` | no |
+| topics | List of Service Bus topics to create | `list(object)` | `[]` | no |
+| tags | A mapping of tags to assign to the resources | `map(string)` | `{}` | no |
+
+### Outputs
+
+| Name | Description |
+|------|-------------|
+| namespace_id | The ID of the Service Bus namespace |
+| namespace_name | The name of the Service Bus namespace |
+| primary_connection_string | The primary connection string for the Service Bus namespace |
+| queue_ids | Map of queue names to their resource IDs |
+| topic_ids | Map of topic names to their resource IDs |
+| subscription_ids | Map of subscription identifiers to their resource IDs |
+
+### Example Implementation
+
+A complete example implementation is available in the [examples/service_bus](/infra/tf/examples/service_bus) directory, which demonstrates:
+
+- Creating custom queues with various configurations:
+  - Size limits (1GB to 5GB)
+  - Message TTL (1 day to 30 days)
+  - Session support
+  - Duplicate detection
+  - Dead-lettering
+  
+- Creating custom topics with subscriptions:
+  - Multiple subscription types
+  - Filtering capabilities
+  - Session support
+  - Dead-lettering on expiration
 
 This module is ideal for organizations requiring a robust messaging infrastructure with enterprise-grade security, reliability, and scalability.
 

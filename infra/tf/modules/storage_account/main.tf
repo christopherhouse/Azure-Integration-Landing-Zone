@@ -46,6 +46,7 @@ resource "azurerm_private_endpoint" "this" {
   location            = var.location
   resource_group_name = var.resource_group_name
   subnet_id           = var.subnet_id
+  custom_network_interface_name = "pe-${azurerm_storage_account.this.name}-${each.key}-nic"
 
   private_service_connection {
     name                           = "psc-${azurerm_storage_account.this.name}-${each.key}"

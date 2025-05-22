@@ -49,7 +49,22 @@ variable "queues" {
     requires_session                  = optional(bool)
     dead_lettering_on_message_expiration = optional(bool)
   }))
-  default = []
+  default = [
+    {
+      name                  = "orders-queue"
+      max_size_in_megabytes = 1024
+      default_message_ttl   = "P14D"  # 14 days
+      max_delivery_count    = 10
+    },
+    {
+      name                              = "notifications-queue"
+      max_size_in_megabytes             = 1024
+      default_message_ttl               = "P7D"   # 7 days
+      max_delivery_count                = 5
+      requires_session                  = true
+      dead_lettering_on_message_expiration = true
+    }
+  ]
 }
 
 variable "topics" {
@@ -70,7 +85,41 @@ variable "topics" {
       requires_session                = optional(bool)
     })), [])
   }))
-  default = []
+  default = [
+    {
+      name                  = "events"
+      max_size_in_megabytes = 1024
+      default_message_ttl   = "P14D"  # 14 days
+      subscriptions = [
+        {
+          name              = "all-events"
+          max_delivery_count = 10
+        },
+        {
+          name                = "critical-events"
+          max_delivery_count  = 20
+          default_message_ttl = "P7D"  # 7 days
+          requires_session    = true
+        }
+      ]
+    },
+    {
+      name                  = "alerts"
+      max_size_in_megabytes = 1024
+      subscriptions = [
+        {
+          name                = "system-alerts"
+          max_delivery_count  = 10
+        },
+        {
+          name                                   = "security-alerts"
+          max_delivery_count                     = 10
+          dead_lettering_on_message_expiration   = true
+          dead_lettering_on_filter_evaluation_error = true
+        }
+      ]
+    }
+  ]
 }
 
 variable "tags" {

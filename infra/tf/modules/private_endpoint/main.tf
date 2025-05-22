@@ -5,6 +5,7 @@ resource "azurerm_private_endpoint" "this" {
   resource_group_name = var.resource_group_name
   subnet_id           = var.subnet_id
   tags                = var.tags
+  custom_network_interface_name = "nic-${var.name}"
 
   private_service_connection {
     name                           = var.connection_name
