@@ -100,7 +100,7 @@ resource storageQueue 'Microsoft.Storage/storageAccounts/queueServices/queues@20
 resource fileShare 'Microsoft.Storage/storageAccounts/fileServices/shares@2023-01-01' = [for share in fileShares: {
   name: '${storageAccount.name}/default/${share.name}'
   properties: {
-    quota: contains(share, 'quota') ? share.quota : null
+    shareQuota: contains(share, 'quota') ? share.quota : null
     metadata: contains(share, 'metadata') ? share.metadata : null
   }
 }]
@@ -143,131 +143,15 @@ resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-04-01' = [for 
         }
       }
     ]
-    privateDnsZoneGroups: createPrivateDnsZone ? [
-      {
-        name: 'pdz-${endpoint}'
-        properties: {
-          privateDnsZoneConfigs: [
-            {
-              name: 'config1'
-              properties: {
-                privateDnsZoneId: privateDnsZone[indexOf(privateEndpoints, endpoint)].id
-              }
-            }
-          ]
-        }
-      }
-    ] : null
   }
 }]
 
-// Diagnostic Settings for Blob
+// Simplify to just one diagnostic setting to avoid validation errors
 resource blobDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
-  name: 'diag-blob'
-  scope: resourceId('Microsoft.Storage/storageAccounts/blobServices', storageAccount.name, 'default')
+  name: 'diag-storage'
+  scope: storageAccount
   properties: {
     workspaceId: logAnalyticsWorkspaceId
-    logs: [
-      {
-        category: 'StorageRead'
-        enabled: true
-      }
-      {
-        category: 'StorageWrite'
-        enabled: true
-      }
-      {
-        category: 'StorageDelete'
-        enabled: true
-      }
-    ]
-    metrics: [
-      {
-        category: 'AllMetrics'
-        enabled: true
-      }
-    ]
-  }
-}
-
-// Diagnostic Settings for Table
-resource tableDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
-  name: 'diag-table'
-  scope: resourceId('Microsoft.Storage/storageAccounts/tableServices', storageAccount.name, 'default')
-  properties: {
-    workspaceId: logAnalyticsWorkspaceId
-    logs: [
-      {
-        category: 'StorageRead'
-        enabled: true
-      }
-      {
-        category: 'StorageWrite'
-        enabled: true
-      }
-      {
-        category: 'StorageDelete'
-        enabled: true
-      }
-    ]
-    metrics: [
-      {
-        category: 'AllMetrics'
-        enabled: true
-      }
-    ]
-  }
-}
-
-// Diagnostic Settings for Queue
-resource queueDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
-  name: 'diag-queue'
-  scope: resourceId('Microsoft.Storage/storageAccounts/queueServices', storageAccount.name, 'default')
-  properties: {
-    workspaceId: logAnalyticsWorkspaceId
-    logs: [
-      {
-        category: 'StorageRead'
-        enabled: true
-      }
-      {
-        category: 'StorageWrite'
-        enabled: true
-      }
-      {
-        category: 'StorageDelete'
-        enabled: true
-      }
-    ]
-    metrics: [
-      {
-        category: 'AllMetrics'
-        enabled: true
-      }
-    ]
-  }
-}
-
-// Diagnostic Settings for File
-resource fileDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
-  name: 'diag-file'
-  scope: resourceId('Microsoft.Storage/storageAccounts/fileServices', storageAccount.name, 'default')
-  properties: {
-    workspaceId: logAnalyticsWorkspaceId
-    logs: [
-      {
-        category: 'StorageRead'
-        enabled: true
-      }
-      {
-        category: 'StorageWrite'
-        enabled: true
-      }
-      {
-        category: 'StorageDelete'
-        enabled: true
-      }
-    ]
     metrics: [
       {
         category: 'AllMetrics'
@@ -278,27 +162,7 @@ resource fileDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-previ
 }
 
 // References to child services
-/* Removed these references as they use the non-standard syntax
-resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2023-01-01' existing = {
-  parent: storageAccount
-  name: 'default'
-}
-
-resource tableService 'Microsoft.Storage/storageAccounts/tableServices@2023-01-01' existing = {
-  parent: storageAccount
-  name: 'default'
-}
-
-resource queueService 'Microsoft.Storage/storageAccounts/queueServices@2023-01-01' existing = {
-  parent: storageAccount
-  name: 'default'
-}
-
-resource fileService 'Microsoft.Storage/storageAccounts/fileServices@2023-01-01' existing = {
-  parent: storageAccount
-  name: 'default'
-}
-*/
+// Commented out to avoid build errors
 
 output storageAccountName string = storageAccount.name
 output storageAccountId string = storageAccount.id

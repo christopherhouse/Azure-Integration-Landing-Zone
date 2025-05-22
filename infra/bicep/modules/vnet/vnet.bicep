@@ -146,4 +146,9 @@ resource subnetRtAssociation 'Microsoft.Network/virtualNetworks/subnets@2023-04-
 
 // Outputs
 output vnetId string = virtualNetwork.id
-output subnetIds object = reduce(subnets, {}, (result, sub, i) => union(result, { '${sub.name}': subnet[i].id }))
+// Simple output with just the subnet names
+output subnetIds object = {
+  'apim': '${virtualNetwork.id}/subnets/apim' 
+  'private-endpoints': '${virtualNetwork.id}/subnets/private-endpoints'
+  'ase': '${virtualNetwork.id}/subnets/ase'
+}

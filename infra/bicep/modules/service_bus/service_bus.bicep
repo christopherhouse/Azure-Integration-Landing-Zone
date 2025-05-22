@@ -134,7 +134,8 @@ resource serviceBusSubscription 'Microsoft.ServiceBus/namespaces/topics/subscrip
     defaultMessageTimeToLive: contains(sub.subscriptionConfig, 'defaultMessageTtl') ? sub.subscriptionConfig.defaultMessageTtl : null
     lockDuration: contains(sub.subscriptionConfig, 'lockDuration') ? sub.subscriptionConfig.lockDuration : null
     deadLetteringOnMessageExpiration: contains(sub.subscriptionConfig, 'deadLetteringOnMessageExpiration') ? sub.subscriptionConfig.deadLetteringOnMessageExpiration : null
-    deadLetteringOnFilterEvaluationError: contains(sub.subscriptionConfig, 'deadLetteringOnFilterEvaluationError') ? sub.subscriptionConfig.deadLetteringOnFilterEvaluationError : null
+    // Using the correct property name for Bicep
+    deadLetteringOnFilterEvaluationExceptions: contains(sub.subscriptionConfig, 'deadLetteringOnFilterEvaluationError') ? sub.subscriptionConfig.deadLetteringOnFilterEvaluationError : null
     requiresSession: contains(sub.subscriptionConfig, 'requiresSession') ? sub.subscriptionConfig.requiresSession : null
   }
 }]
