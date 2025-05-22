@@ -1,6 +1,7 @@
 """
 Module for generating consistent Azure resource names.
 """
+
 from typing import Dict, Any, Optional
 import pulumi
 
@@ -40,28 +41,28 @@ class NamesProvider:
             A string with the formatted resource name
         """
         parts = []
-        
+
         if self.prefix:
             parts.append(self.prefix)
-            
+
         parts.append(resource_type)
-        
+
         if self.workload_name:
             parts.append(self.workload_name)
-            
+
         if self.environment:
             parts.append(self.environment)
-            
+
         if self.suffix:
             parts.append(self.suffix)
-            
+
         name = "-".join([p for p in parts if p])
-        
+
         # Ensure the name is not longer than max_length
         if len(name) > max_length:
             # Truncate in the middle to keep prefix and suffix intact
             name = name[:max_length]
-            
+
         return name
 
     @property

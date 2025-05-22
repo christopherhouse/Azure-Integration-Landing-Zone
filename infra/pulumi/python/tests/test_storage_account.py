@@ -1,6 +1,7 @@
 """
 Unit tests for the storage_account module.
 """
+
 import pytest
 import pulumi
 from pulumi_azure_native import storage
@@ -9,14 +10,15 @@ from lz.storage_account import StorageAccount
 
 class TestStorageAccount:
     """Test cases for the StorageAccount class."""
-    
+
     @pytest.fixture
     def mocks(self):
         """Create pulumi mocks for testing."""
+
         class MockResourceMonitor(pulumi.runtime.Mocks):
             def new_resource(self, args: pulumi.runtime.MockResourceArgs):
                 resource_type = args.type_.split(":")[1]
-                
+
                 if resource_type == "storage.StorageAccount":
                     outputs = {
                         "id": f"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/{args.inputs.get('resourceGroupName')}/providers/Microsoft.Storage/storageAccounts/{args.inputs.get('accountName')}",
@@ -58,18 +60,19 @@ class TestStorageAccount:
                     }
                 else:
                     outputs = {}
-                    
-                return [args.name + '_id', outputs]
-            
+
+                return [args.name + "_id", outputs]
+
             def call(self, args: pulumi.runtime.MockCallArgs):
                 return {}
-        
+
         pulumi.runtime.set_mocks(MockResourceMonitor())
         yield
         pulumi.runtime.reset_mocks()
-    
+
     def test_storage_account_creation(self, mocks):
         """Test that a Storage Account is created with the correct settings."""
+
         # Run the pulumi program
         def create_test_storage_account():
             storage_account = StorageAccount(
@@ -101,15 +104,15 @@ class TestStorageAccount:
                 tags={"env": "test"},
                 allow_blob_public_access=False,
             )
-            
+
             # Check that we can access the property getters
             pulumi.export("storage_account_id", storage_account.id)
             pulumi.export("storage_account_name", storage_account.name)
-        
+
         # Execute the Pulumi program and verify the outputs
         pulumi.runtime.test_mode = True
         stack = pulumi.test.test_with_mocks(create_test_storage_account, mocks)
-        
+
         # Check the outputs
         assert "satest" in stack.outputs["storage_account_id"].value
         assert stack.outputs["storage_account_name"].value == "satest"

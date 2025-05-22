@@ -1,6 +1,7 @@
 """
 Module for creating and managing Azure Log Analytics resources.
 """
+
 from typing import Optional, Dict, Any
 import pulumi
 from pulumi_azure_native import operationalinsights
@@ -42,7 +43,7 @@ class LogAnalyticsWorkspace:
             workspace_name=name,
             tags=tags or {},
         )
-        
+
         if daily_quota_gb is not None:
             # Set daily quota if specified
             self.workspace_settings = operationalinsights.WorkspaceDailyQuota(
@@ -57,7 +58,7 @@ class LogAnalyticsWorkspace:
     def id(self) -> pulumi.Output[str]:
         """Get the ID of the workspace."""
         return self.workspace.id
-    
+
     @property
     def name(self) -> pulumi.Output[str]:
         """Get the name of the workspace."""

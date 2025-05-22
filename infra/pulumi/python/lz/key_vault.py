@@ -1,6 +1,7 @@
 """
 Module for creating and managing Azure Key Vault resources.
 """
+
 from typing import Dict, Any, Optional, List
 import pulumi
 from pulumi_azure_native import keyvault, network
@@ -64,12 +65,18 @@ class KeyVault:
                     family="A",
                     name=keyvault.SkuName(sku_name),
                 ),
-                network_acls=keyvault.NetworkRuleSetArgs(
-                    bypass=keyvault.NetworkRuleBypassOptions.AZURE_SERVICES,
-                    default_action=keyvault.NetworkRuleAction.DENY,
-                    ip_rules=network_acls.get("ip_rules", []) if network_acls else [],
-                    virtual_network_rules=network_acls.get("virtual_network_rules", []) if network_acls else [],
-                ) if network_acls else None,
+                network_acls=(
+                    keyvault.NetworkRuleSetArgs(
+                        bypass=keyvault.NetworkRuleBypassOptions.AZURE_SERVICES,
+                        default_action=keyvault.NetworkRuleAction.DENY,
+                        ip_rules=network_acls.get("ip_rules", []) if network_acls else [],
+                        virtual_network_rules=(
+                            network_acls.get("virtual_network_rules", []) if network_acls else []
+                        ),
+                    )
+                    if network_acls
+                    else None
+                ),
                 access_policies=[
                     keyvault.AccessPolicyEntryArgs(
                         tenant_id=policy.get("tenant_id"),
@@ -86,7 +93,7 @@ class KeyVault:
             ),
             tags=tags or {},
         )
-        
+
         # Create private endpoint if enabled
         if enable_private_endpoint and vnet_id and subnet_id:
             self.private_endpoint = network.PrivateEndpoint(
@@ -105,17 +112,17 @@ class KeyVault:
                 tags=tags or {},
                 opts=pulumi.ResourceOptions(depends_on=[self.key_vault]),
             )
-    
+
     @property
     def id(self) -> pulumi.Output[str]:
         """Get the ID of the Key Vault."""
         return self.key_vault.id
-    
+
     @property
     def name(self) -> pulumi.Output[str]:
         """Get the name of the Key Vault."""
         return self.key_vault.name
-    
+
     @property
     def uri(self) -> pulumi.Output[str]:
         """Get the URI of the Key Vault."""

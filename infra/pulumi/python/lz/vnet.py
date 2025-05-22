@@ -1,6 +1,7 @@
 """
 Module for creating and managing Azure Virtual Network resources.
 """
+
 from typing import List, Dict, Any, Optional, Union
 import pulumi
 from pulumi_azure_native import network
@@ -34,7 +35,7 @@ class VirtualNetwork:
             tags: A dictionary of tags to assign to the VNet
         """
         self.subnet_resources = {}
-        
+
         # Create the Virtual Network
         self.vnet = network.VirtualNetwork(
             resource_name=name,
@@ -44,18 +45,22 @@ class VirtualNetwork:
             address_space=network.AddressSpaceArgs(
                 address_prefixes=address_spaces,
             ),
-            dhcp_options=network.DhcpOptionsArgs(
-                dns_servers=dns_servers,
-            ) if dns_servers else None,
+            dhcp_options=(
+                network.DhcpOptionsArgs(
+                    dns_servers=dns_servers,
+                )
+                if dns_servers
+                else None
+            ),
             tags=tags or {},
         )
-        
+
         # Create subnets
         if subnets:
             for subnet in subnets:
                 subnet_name = subnet.get("name")
                 address_prefixes = subnet.get("address_prefixes", [])
-                
+
                 subnet_args = {
                     "resource_name": f"{name}-{subnet_name}",
                     "resource_group_name": resource_group_name,
@@ -66,7 +71,7 @@ class VirtualNetwork:
                     "service_endpoints": subnet.get("service_endpoints", []),
                     "opts": pulumi.ResourceOptions(depends_on=[self.vnet]),
                 }
-                
+
                 # Add delegation if specified
                 delegation = subnet.get("delegation")
                 if delegation:
@@ -80,31 +85,31 @@ class VirtualNetwork:
                             ),
                         )
                     ]
-                
+
                 # Create the subnet
                 self.subnet_resources[subnet_name] = network.Subnet(**subnet_args)
-    
+
     @property
     def id(self) -> pulumi.Output[str]:
         """Get the ID of the Virtual Network."""
         return self.vnet.id
-    
+
     @property
     def name(self) -> pulumi.Output[str]:
         """Get the name of the Virtual Network."""
         return self.vnet.name
-    
+
     def get_subnet_id(self, subnet_name: str) -> pulumi.Output[str]:
         """
         Get the ID of a subnet by name.
-        
+
         Args:
             subnet_name: The name of the subnet
-            
+
         Returns:
             The ID of the subnet
         """
         if subnet_name not in self.subnet_resources:
             raise ValueError(f"Subnet '{subnet_name}' does not exist")
-        
+
         return self.subnet_resources[subnet_name].id

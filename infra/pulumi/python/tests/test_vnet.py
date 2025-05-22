@@ -1,6 +1,7 @@
 """
 Unit tests for the vnet module.
 """
+
 import pytest
 import pulumi
 from pulumi_azure_native import network
@@ -9,10 +10,11 @@ from lz.vnet import VirtualNetwork
 
 class TestVirtualNetwork:
     """Test cases for the VirtualNetwork class."""
-    
+
     @pytest.fixture
     def mocks(self):
         """Create pulumi mocks for testing."""
+
         class MockResourceMonitor(pulumi.runtime.Mocks):
             def new_resource(self, args: pulumi.runtime.MockResourceArgs):
                 # Extract the resource name from args
@@ -21,7 +23,11 @@ class TestVirtualNetwork:
                     outputs = {
                         "id": f"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/{args.inputs.get('resourceGroupName')}/providers/Microsoft.Network/virtualNetworks/{args.inputs.get('virtualNetworkName')}",
                         "name": args.inputs.get("virtualNetworkName", ""),
-                        "addressSpace": {"addressPrefixes": args.inputs.get("addressSpace", {}).get("addressPrefixes", [])},
+                        "addressSpace": {
+                            "addressPrefixes": args.inputs.get("addressSpace", {}).get(
+                                "addressPrefixes", []
+                            )
+                        },
                         "location": args.inputs.get("location", ""),
                     }
                 elif resource_type == "network.Subnet":
@@ -33,17 +39,18 @@ class TestVirtualNetwork:
                     }
                 else:
                     outputs = {}
-                return [args.name + '_id', outputs]
-            
+                return [args.name + "_id", outputs]
+
             def call(self, args: pulumi.runtime.MockCallArgs):
                 return {}
-        
+
         pulumi.runtime.set_mocks(MockResourceMonitor())
         yield
         pulumi.runtime.reset_mocks()
-    
+
     def test_vnet_creation(self, mocks):
         """Test that a virtual network is created with the correct settings."""
+
         # Run the pulumi program
         def create_test_vnet():
             vnet = VirtualNetwork(
@@ -66,18 +73,18 @@ class TestVirtualNetwork:
                         },
                     },
                 ],
-                tags={"env": "test"}
+                tags={"env": "test"},
             )
-            
+
             # Check that we can get subnet IDs
             pulumi.export("vnet_id", vnet.id)
             pulumi.export("default_subnet_id", vnet.get_subnet_id("default"))
             pulumi.export("ase_subnet_id", vnet.get_subnet_id("ase"))
-        
+
         # Execute the Pulumi program and verify the outputs
         pulumi.runtime.test_mode = True
         stack = pulumi.test.test_with_mocks(create_test_vnet, mocks)
-        
+
         # Check the outputs
         assert "vnet-test-lz" in stack.outputs["vnet_id"].value
         assert "default" in stack.outputs["default_subnet_id"].value

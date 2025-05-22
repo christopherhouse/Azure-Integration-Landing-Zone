@@ -1,6 +1,7 @@
 """
 Main entry point for the Azure Integration Landing Zone Pulumi program.
 """
+
 import pulumi
 from pulumi_azure_native import resources
 from pulumi_azure_native import authorization
@@ -33,32 +34,30 @@ vnet_subnets = config.get_object("vnetSubnets") or [
         "delegation": {
             "name": "ase-delegation",
             "service_name": "Microsoft.Web/hostingEnvironments",
-            "actions": ["Microsoft.Network/virtualNetworks/subnets/action"]
+            "actions": ["Microsoft.Network/virtualNetworks/subnets/action"],
         },
-        "service_endpoints": []
+        "service_endpoints": [],
     },
-    {
-        "name": "private-endpoints",
-        "address_prefixes": ["10.10.2.0/24"],
-        "service_endpoints": []
-    }
+    {"name": "private-endpoints", "address_prefixes": ["10.10.2.0/24"], "service_endpoints": []},
 ]
 
 # Add APIM subnet if needed
 if deploy_api_management:
-    vnet_subnets.append({
-        "name": "apim",
-        "address_prefixes": ["10.10.3.0/24"],
-        "service_endpoints": ["Microsoft.ApiManagement"]
-    })
+    vnet_subnets.append(
+        {
+            "name": "apim",
+            "address_prefixes": ["10.10.3.0/24"],
+            "service_endpoints": ["Microsoft.ApiManagement"],
+        }
+    )
 
 # Get the current client config to get the tenant ID
 current_client = authorization.get_client_config()
 
 # Create a resource group if it doesn't exist
 resource_group = resources.ResourceGroup.get(
-    "resource_group", 
-    resource_group_id=f"/subscriptions/{subscription_id}/resourceGroups/{resource_group_name}"
+    "resource_group",
+    resource_group_id=f"/subscriptions/{subscription_id}/resourceGroups/{resource_group_name}",
 )
 
 # Create a names provider
@@ -70,7 +69,7 @@ log_analytics = LogAnalyticsWorkspace(
     resource_group_name=resource_group_name,
     location=location,
     retention_in_days=30,
-    tags={"environment": environment}
+    tags={"environment": environment},
 )
 
 # Create Virtual Network
@@ -80,7 +79,7 @@ vnet = VirtualNetwork(
     location=location,
     address_spaces=vnet_address_spaces,
     subnets=vnet_subnets,
-    tags={"environment": environment}
+    tags={"environment": environment},
 )
 
 # Create Key Vault
@@ -93,7 +92,7 @@ key_vault = KeyVault(
     subnet_id=vnet.get_subnet_id("private-endpoints"),
     purge_protection_enabled=True,
     soft_delete_retention_days=90,
-    tags={"environment": environment}
+    tags={"environment": environment},
 )
 
 # Create API Management if enabled
@@ -109,7 +108,7 @@ if deploy_api_management:
         sku_name=config.get("apimSkuName") or "Developer",
         sku_capacity=config.get_int("apimSkuCapacity") or 1,
         enable_system_assigned_identity=True,
-        tags={"environment": environment}
+        tags={"environment": environment},
     )
 
 # Create Service Bus if enabled
@@ -122,7 +121,7 @@ if deploy_service_bus:
         vnet_id=vnet.id,
         subnet_id=vnet.get_subnet_id("private-endpoints"),
         capacity=config.get_int("serviceBusCapacityUnits") or 1,
-        tags={"environment": environment}
+        tags={"environment": environment},
     )
 
 # Export outputs

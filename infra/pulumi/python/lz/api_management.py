@@ -1,6 +1,7 @@
 """
 Module for creating and managing Azure API Management resources.
 """
+
 from typing import Dict, Any, Optional, List
 import pulumi
 from pulumi_azure_native import apimanagement
@@ -55,7 +56,7 @@ class ApiManagement:
         else:
             identity_type = None
             identity_ids = None
-        
+
         # Create the API Management instance
         self.apim = apimanagement.ApiManagementService(
             resource_name=name,
@@ -72,23 +73,27 @@ class ApiManagement:
             virtual_network_configuration=apimanagement.VirtualNetworkConfigurationArgs(
                 subnet_id=subnet_id,
             ),
-            identity=apimanagement.ApiManagementServiceIdentityArgs(
-                type=identity_type,
-                user_assigned_identities=identity_ids,
-            ) if identity_type else None,
+            identity=(
+                apimanagement.ApiManagementServiceIdentityArgs(
+                    type=identity_type,
+                    user_assigned_identities=identity_ids,
+                )
+                if identity_type
+                else None
+            ),
             tags=tags or {},
         )
-    
+
     @property
     def id(self) -> pulumi.Output[str]:
         """Get the ID of the API Management instance."""
         return self.apim.id
-    
+
     @property
     def name(self) -> pulumi.Output[str]:
         """Get the name of the API Management instance."""
         return self.apim.name
-    
+
     @property
     def gateway_url(self) -> pulumi.Output[str]:
         """Get the gateway URL of the API Management instance."""
