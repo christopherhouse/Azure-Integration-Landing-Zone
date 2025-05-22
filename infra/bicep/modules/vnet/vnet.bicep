@@ -4,9 +4,6 @@ param vnetName string
 @description('Azure region')
 param location string
 
-@description('Resource group name')
-param resourceGroupName string
-
 @description('Array of address spaces for the VNet')
 param addressSpaces array
 
@@ -33,8 +30,8 @@ resource subnet 'Microsoft.Network/virtualNetworks/subnets@2023-04-01' = [for (s
   properties: {
     addressPrefix: sub.addressPrefixes[0]
     addressPrefixes: sub.addressPrefixes
-    serviceEndpoints: contains(sub, 'serviceEndpoints') ? sub.serviceEndpoints : null
-    delegations: contains(sub, 'delegation') ? [
+    serviceEndpoints: sub.?serviceEndpoints
+    delegations: sub.?delegation ? [
       {
         name: sub.delegation.name
         properties: {
@@ -45,7 +42,7 @@ resource subnet 'Microsoft.Network/virtualNetworks/subnets@2023-04-01' = [for (s
   }
 }]
 
-resource networkSecurityGroup 'Microsoft.Network/networkSecurityGroups@2023-04-01' = [for sub in subnets: if(contains(sub, 'nsg')) {
+resource networkSecurityGroup 'Microsoft.Network/networkSecurityGroups@2023-04-01' = [for sub in subnets: if(sub.?nsg) {
   name: sub.nsg.name
   location: location
   tags: tags
@@ -57,14 +54,14 @@ resource networkSecurityGroup 'Microsoft.Network/networkSecurityGroups@2023-04-0
         direction: rule.direction
         access: rule.access
         protocol: rule.protocol
-        sourcePortRange: contains(rule, 'sourcePortRange') ? rule.sourcePortRange : null
-        sourcePortRanges: contains(rule, 'sourcePortRanges') ? rule.sourcePortRanges : null
-        destinationPortRange: contains(rule, 'destinationPortRange') ? rule.destinationPortRange : null
-        destinationPortRanges: contains(rule, 'destinationPortRanges') ? rule.destinationPortRanges : null
-        sourceAddressPrefix: contains(rule, 'sourceAddressPrefix') ? rule.sourceAddressPrefix : null
-        sourceAddressPrefixes: contains(rule, 'sourceAddressPrefixes') ? rule.sourceAddressPrefixes : null
-        destinationAddressPrefix: contains(rule, 'destinationAddressPrefix') ? rule.destinationAddressPrefix : null
-        destinationAddressPrefixes: contains(rule, 'destinationAddressPrefixes') ? rule.destinationAddressPrefixes : null
+        sourcePortRange: rule.?sourcePortRange
+        sourcePortRanges: rule.?sourcePortRanges
+        destinationPortRange: rule.?destinationPortRange
+        destinationPortRanges: rule.?destinationPortRanges
+        sourceAddressPrefix: rule.?sourceAddressPrefix
+        sourceAddressPrefixes: rule.?sourceAddressPrefixes
+        destinationAddressPrefix: rule.?destinationAddressPrefix
+        destinationAddressPrefixes: rule.?destinationAddressPrefixes
         description: rule.description
       }
     }]
@@ -108,7 +105,7 @@ resource routeTable 'Microsoft.Network/routeTables@2023-04-01' = [for sub in sub
       properties: {
         addressPrefix: route.addressPrefix
         nextHopType: route.nextHopType
-        nextHopIpAddress: contains(route, 'nextHopIpAddress') ? route.nextHopIpAddress : null
+        nextHopIpAddress: route.?nextHopIpAddress
       }
     }]
   }
@@ -148,7 +145,7 @@ resource subnetRtAssociation 'Microsoft.Network/virtualNetworks/subnets@2023-04-
 output vnetId string = virtualNetwork.id
 // Simple output with just the subnet names
 output subnetIds object = {
-  'apim': '${virtualNetwork.id}/subnets/apim' 
+  apim: '${virtualNetwork.id}/subnets/apim' 
   'private-endpoints': '${virtualNetwork.id}/subnets/private-endpoints'
-  'ase': '${virtualNetwork.id}/subnets/ase'
+  ase: '${virtualNetwork.id}/subnets/ase'
 }

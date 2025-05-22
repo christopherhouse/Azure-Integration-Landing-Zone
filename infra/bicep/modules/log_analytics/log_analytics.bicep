@@ -1,9 +1,6 @@
 @description('The name of the Log Analytics Workspace')
 param workspaceName string
 
-@description('The name of the resource group')
-param resourceGroupName string
-
 @description('The Azure region')
 param location string
 

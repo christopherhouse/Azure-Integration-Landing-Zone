@@ -1,0 +1,97 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.35.1.17967",
+      "templateHash": "17125716119265900570"
+    }
+  },
+  "parameters": {
+    "name": {
+      "type": "string",
+      "metadata": {
+        "description": "Private endpoint name"
+      }
+    },
+    "location": {
+      "type": "string",
+      "metadata": {
+        "description": "Azure region"
+      }
+    },
+    "subnetId": {
+      "type": "string",
+      "metadata": {
+        "description": "Subnet ID for the private endpoint"
+      }
+    },
+    "connectionName": {
+      "type": "string",
+      "metadata": {
+        "description": "Private service connection name"
+      }
+    },
+    "privateConnectionResourceId": {
+      "type": "string",
+      "metadata": {
+        "description": "Resource ID for the private connection"
+      }
+    },
+    "subresourceNames": {
+      "type": "array",
+      "metadata": {
+        "description": "Subresource names for the private endpoint"
+      }
+    },
+    "tags": {
+      "type": "object",
+      "defaultValue": {},
+      "metadata": {
+        "description": "Tags for resources"
+      }
+    },
+    "customNetworkInterfaceName": {
+      "type": "string",
+      "defaultValue": "[format('nic-{0}', parameters('name'))]",
+      "metadata": {
+        "description": "Optional custom network interface name"
+      }
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Network/privateEndpoints",
+      "apiVersion": "2023-04-01",
+      "name": "[parameters('name')]",
+      "location": "[parameters('location')]",
+      "tags": "[parameters('tags')]",
+      "properties": {
+        "subnet": {
+          "id": "[parameters('subnetId')]"
+        },
+        "customNetworkInterfaceName": "[parameters('customNetworkInterfaceName')]",
+        "privateLinkServiceConnections": [
+          {
+            "name": "[parameters('connectionName')]",
+            "properties": {
+              "privateLinkServiceId": "[parameters('privateConnectionResourceId')]",
+              "groupIds": "[parameters('subresourceNames')]"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "outputs": {
+    "privateIpAddress": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Network/privateEndpoints', parameters('name')), '2023-04-01').networkInterfaces[0].properties.ipConfigurations[0].properties.privateIPAddress]"
+    },
+    "id": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Network/privateEndpoints', parameters('name'))]"
+    }
+  }
+}

@@ -1,9 +1,6 @@
 @description('Azure region for the storage account')
 param location string
 
-@description('Resource group name')
-param resourceGroupName string
-
 @description('Storage account name')
 param storageAccountName string
 
@@ -52,11 +49,6 @@ param logAnalyticsWorkspaceId string
 @description('Tags for resources')
 param tags object = {}
 
-// Get the first part of SKU (Standard or Premium)
-var skuTier = split(skuName, '_')[0]
-// Get the second part of SKU (LRS, ZRS, GRS, etc.)
-var skuReplication = split(skuName, '_')[1]
-
 // Storage Account
 resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
   name: storageAccountName
@@ -78,8 +70,8 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
 resource blobContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2023-01-01' = [for container in blobContainers: {
   name: '${storageAccount.name}/default/${container.name}'
   properties: {
-    publicAccess: contains(container, 'containerAccessType') ? container.containerAccessType : 'None'
-    metadata: contains(container, 'metadata') ? container.metadata : null
+    publicAccess: container.?containerAccessType ?? 'None'
+    metadata: container.?metadata
   }
 }]
 
@@ -92,7 +84,7 @@ resource storageTable 'Microsoft.Storage/storageAccounts/tableServices/tables@20
 resource storageQueue 'Microsoft.Storage/storageAccounts/queueServices/queues@2023-01-01' = [for queue in queues: {
   name: '${storageAccount.name}/default/${queue.name}'
   properties: {
-    metadata: contains(queue, 'metadata') ? queue.metadata : null
+    metadata: queue.?metadata
   }
 }]
 
@@ -100,8 +92,8 @@ resource storageQueue 'Microsoft.Storage/storageAccounts/queueServices/queues@20
 resource fileShare 'Microsoft.Storage/storageAccounts/fileServices/shares@2023-01-01' = [for share in fileShares: {
   name: '${storageAccount.name}/default/${share.name}'
   properties: {
-    shareQuota: contains(share, 'quota') ? share.quota : null
-    metadata: contains(share, 'metadata') ? share.metadata : null
+    shareQuota: share.?quota
+    metadata: share.?metadata
   }
 }]
 

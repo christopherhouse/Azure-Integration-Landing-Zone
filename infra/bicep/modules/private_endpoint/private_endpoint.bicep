@@ -4,9 +4,6 @@ param name string
 @description('Azure region')
 param location string
 
-@description('Resource group name')
-param resourceGroupName string
-
 @description('Subnet ID for the private endpoint')
 param subnetId string
 

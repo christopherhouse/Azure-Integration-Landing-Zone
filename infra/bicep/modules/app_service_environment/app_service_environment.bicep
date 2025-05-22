@@ -1,14 +1,8 @@
 @description('App Service Environment name')
 param appServiceEnvironmentName string
 
-@description('Resource group name')
-param resourceGroupName string
-
 @description('Azure region')
 param location string
-
-@description('VNet ID for the App Service Environment')
-param vnetId string
 
 @description('Subnet ID for the App Service Environment')
 param subnetId string

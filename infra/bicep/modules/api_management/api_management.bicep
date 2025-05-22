@@ -1,9 +1,6 @@
 @description('API Management name')
 param name string
 
-@description('Resource group name')
-param resourceGroupName string
-
 @description('Azure region')
 param location string
 

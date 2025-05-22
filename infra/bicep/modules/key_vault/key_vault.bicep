@@ -4,9 +4,6 @@ param keyVaultName string
 @description('Azure region')
 param location string
 
-@description('Resource group name')
-param resourceGroupName string
-
 @description('Azure AD tenant ID')
 param tenantId string
 
@@ -69,7 +66,6 @@ module privateDnsZone '../private_dns_zone/private_dns_zone.bicep' = {
   name: 'kv-dns-zone'
   params: {
     zoneName: 'privatelink.vaultcore.azure.net'
-    resourceGroupName: resourceGroupName
     linkName: 'kv-dns-link'
     vnetId: vnetId
     tags: tags
@@ -81,7 +77,6 @@ module privateEndpoint '../private_endpoint/private_endpoint.bicep' = {
   params: {
     name: '${keyVaultName}-pe'
     location: location
-    resourceGroupName: resourceGroupName
     subnetId: subnetId
     connectionName: '${keyVaultName}-pe-conn'
     privateConnectionResourceId: keyVault.id

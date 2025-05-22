@@ -1,0 +1,154 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.35.1.17967",
+      "templateHash": "12088936176010091859"
+    }
+  },
+  "parameters": {
+    "name": {
+      "type": "string",
+      "metadata": {
+        "description": "API Management name"
+      }
+    },
+    "location": {
+      "type": "string",
+      "metadata": {
+        "description": "Azure region"
+      }
+    },
+    "logAnalyticsWorkspaceId": {
+      "type": "string",
+      "metadata": {
+        "description": "Log Analytics Workspace ID for diagnostics"
+      }
+    },
+    "subnetId": {
+      "type": "string",
+      "metadata": {
+        "description": "Subnet ID for APIM network integration"
+      }
+    },
+    "skuName": {
+      "type": "string",
+      "allowedValues": [
+        "Developer",
+        "Premium"
+      ],
+      "metadata": {
+        "description": "APIM SKU tier. Allowed: Developer, Premium."
+      }
+    },
+    "skuCapacity": {
+      "type": "int",
+      "metadata": {
+        "description": "APIM SKU capacity (instance count)"
+      }
+    },
+    "enableSystemAssignedIdentity": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "Enable system assigned identity"
+      }
+    },
+    "userAssignedIdentityIds": {
+      "type": "array",
+      "defaultValue": [],
+      "metadata": {
+        "description": "User assigned identity IDs"
+      }
+    },
+    "publisherName": {
+      "type": "string",
+      "metadata": {
+        "description": "The publisher name for API Management"
+      }
+    },
+    "publisherEmail": {
+      "type": "string",
+      "metadata": {
+        "description": "The publisher email for API Management"
+      }
+    },
+    "tags": {
+      "type": "object",
+      "defaultValue": {},
+      "metadata": {
+        "description": "Tags for resources"
+      }
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.ApiManagement/service",
+      "apiVersion": "2023-03-01-preview",
+      "name": "[parameters('name')]",
+      "location": "[parameters('location')]",
+      "tags": "[parameters('tags')]",
+      "sku": {
+        "name": "[parameters('skuName')]",
+        "capacity": "[parameters('skuCapacity')]"
+      },
+      "properties": {
+        "publisherName": "[parameters('publisherName')]",
+        "publisherEmail": "[parameters('publisherEmail')]",
+        "virtualNetworkType": "Internal",
+        "virtualNetworkConfiguration": {
+          "subnetResourceId": "[parameters('subnetId')]"
+        }
+      },
+      "identity": "[if(or(parameters('enableSystemAssignedIdentity'), greater(length(parameters('userAssignedIdentityIds')), 0)), createObject('type', if(and(parameters('enableSystemAssignedIdentity'), greater(length(parameters('userAssignedIdentityIds')), 0)), 'SystemAssigned,UserAssigned', if(parameters('enableSystemAssignedIdentity'), 'SystemAssigned', 'UserAssigned')), 'userAssignedIdentities', if(greater(length(parameters('userAssignedIdentityIds')), 0), reduce(parameters('userAssignedIdentityIds'), createObject(), lambda('result', 'id', union(lambdaVariables('result'), createObject(format('{0}', lambdaVariables('id')), createObject())))), null())), null())]"
+    },
+    {
+      "type": "Microsoft.Insights/diagnosticSettings",
+      "apiVersion": "2021-05-01-preview",
+      "scope": "[format('Microsoft.ApiManagement/service/{0}', parameters('name'))]",
+      "name": "[format('{0}-diag', parameters('name'))]",
+      "properties": {
+        "workspaceId": "[parameters('logAnalyticsWorkspaceId')]",
+        "logs": [
+          {
+            "category": "DeveloperPortalAuditLogs",
+            "enabled": true
+          },
+          {
+            "category": "GatewayLlmLogs",
+            "enabled": true
+          },
+          {
+            "category": "GatewayLogs",
+            "enabled": true
+          },
+          {
+            "category": "WebSocketConnectionLogs",
+            "enabled": true
+          }
+        ],
+        "metrics": [
+          {
+            "category": "AllMetrics",
+            "enabled": true
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.ApiManagement/service', parameters('name'))]"
+      ]
+    }
+  ],
+  "outputs": {
+    "id": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.ApiManagement/service', parameters('name'))]"
+    },
+    "name": {
+      "type": "string",
+      "value": "[parameters('name')]"
+    }
+  }
+}

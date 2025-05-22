@@ -75,11 +75,7 @@ param serviceBusQueues array = []
 @description('Service Bus topics')
 param serviceBusTopics array = []
 
-// Existing Resource Group - Reference to existing resources
-resource rg 'Microsoft.Resources/resourceGroups@2022-09-01' existing = {
-  scope: subscription()
-  name: resourceGroupName
-}
+// Reference to resource group is managed through scoped module deployment
 
 // Get Azure Tenant ID
 module currentUser 'modules/current-user.bicep' = {
@@ -104,7 +100,6 @@ module logAnalytics 'modules/log_analytics/log_analytics.bicep' = {
   scope: resourceGroup(resourceGroupName)
   params: {
     workspaceName: names.outputs.logAnalyticsWorkspaceName
-    resourceGroupName: resourceGroupName
     location: location
     tags: tags
   }
@@ -116,7 +111,6 @@ module vnet 'modules/vnet/vnet.bicep' = {
   scope: resourceGroup(resourceGroupName)
   params: {
     vnetName: names.outputs.vnetName
-    resourceGroupName: resourceGroupName
     location: location
     addressSpaces: vnetAddressSpaces
     subnets: vnetSubnets
@@ -130,7 +124,6 @@ module keyVault 'modules/key_vault/key_vault.bicep' = {
   scope: resourceGroup(resourceGroupName)
   params: {
     keyVaultName: names.outputs.keyVaultName
-    resourceGroupName: resourceGroupName
     location: location
     tenantId: currentUser.outputs.tenantId
     purgeProtectionEnabled: keyVaultPurgeProtectionEnabled
@@ -148,13 +141,12 @@ module apiManagement 'modules/api_management/api_management.bicep' = if (deployA
   scope: resourceGroup(resourceGroupName)
   params: {
     name: names.outputs.apiManagementName
-    resourceGroupName: resourceGroupName
     location: location
     publisherName: apimPublisherName
     publisherEmail: apimPublisherEmail
     skuName: apimSkuName
     skuCapacity: apimSkuCapacity
-    subnetId: vnet.outputs.subnetIds['apim']
+    subnetId: vnet.outputs.subnetIds.apim
     logAnalyticsWorkspaceId: logAnalytics.outputs.workspaceId
     enableSystemAssignedIdentity: true
     userAssignedIdentityIds: []
@@ -168,10 +160,8 @@ module appServiceEnvironment 'modules/app_service_environment/app_service_enviro
   scope: resourceGroup(resourceGroupName)
   params: {
     appServiceEnvironmentName: names.outputs.appServiceEnvironmentName
-    resourceGroupName: resourceGroupName
     location: location
-    vnetId: vnet.outputs.vnetId
-    subnetId: vnet.outputs.subnetIds['ase']
+    subnetId: vnet.outputs.subnetIds.ase
     tags: tags
   }
 }
@@ -193,21 +183,20 @@ module storageAccountsDeployment 'modules/storage_account/storage_account.bicep'
   scope: resourceGroup(resourceGroupName)
   params: {
     storageAccountName: storageAccountNames[i].outputs.storageAccountName
-    resourceGroupName: resourceGroupName
     location: location
-    skuName: contains(sa, 'sku_name') ? sa.sku_name : 'Standard_LRS'
-    accountKind: contains(sa, 'account_kind') ? sa.account_kind : 'StorageV2'
-    accessTier: contains(sa, 'access_tier') ? sa.access_tier : 'Hot'
-    minTlsVersion: contains(sa, 'min_tls_version') ? sa.min_tls_version : 'TLS1_2'
-    allowBlobPublicAccess: contains(sa, 'allow_blob_public_access') ? sa.allow_blob_public_access : false
+    skuName: sa.?sku_name ?? 'Standard_LRS'
+    accountKind: sa.?account_kind ?? 'StorageV2'
+    accessTier: sa.?access_tier ?? 'Hot'
+    minTlsVersion: sa.?min_tls_version ?? 'TLS1_2'
+    allowBlobPublicAccess: sa.?allow_blob_public_access ?? false
     vnetId: vnet.outputs.vnetId
     subnetId: vnet.outputs.subnetIds['private-endpoints']
-    privateEndpoints: contains(sa, 'private_endpoints') ? sa.private_endpoints : []
-    createPrivateDnsZone: contains(sa, 'create_private_dns_zone') ? sa.create_private_dns_zone : false
-    blobContainers: contains(sa, 'blob_containers') ? sa.blob_containers : []
-    tables: contains(sa, 'tables') ? sa.tables : []
-    queues: contains(sa, 'queues') ? sa.queues : []
-    fileShares: contains(sa, 'file_shares') ? sa.file_shares : []
+    privateEndpoints: sa.?private_endpoints ?? []
+    createPrivateDnsZone: sa.?create_private_dns_zone ?? false
+    blobContainers: sa.?blob_containers ?? []
+    tables: sa.?tables ?? []
+    queues: sa.?queues ?? []
+    fileShares: sa.?file_shares ?? []
     logAnalyticsWorkspaceId: logAnalytics.outputs.workspaceId
     tags: tags
   }
@@ -219,7 +208,6 @@ module serviceBus 'modules/service_bus/service_bus.bicep' = if (deployServiceBus
   scope: resourceGroup(resourceGroupName)
   params: {
     name: names.outputs.serviceBusNamespaceName
-    resourceGroupName: resourceGroupName
     location: location
     capacityUnits: serviceBusCapacityUnits
     logAnalyticsWorkspaceId: logAnalytics.outputs.workspaceId

@@ -1,9 +1,6 @@
 @description('DNS zone name')
 param zoneName string
 
-@description('Resource group name')
-param resourceGroupName string
-
 @description('Virtual network link name')
 param linkName string
 
