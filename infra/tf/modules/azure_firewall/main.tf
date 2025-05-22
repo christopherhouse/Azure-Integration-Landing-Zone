@@ -95,7 +95,7 @@ resource "azurerm_firewall_policy_rule_collection_group" "application_rules" {
         description      = rule.value.description
         source_addresses = rule.value.source_addresses
         source_ip_groups = rule.value.source_ip_groups
-        destination_fqdns = rule.value.target_fqdns
+        target_fqdns     = rule.value.target_fqdns
         fqdn_tags        = rule.value.fqdn_tags
 
         dynamic "protocols" {
