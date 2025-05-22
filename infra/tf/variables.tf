@@ -209,10 +209,70 @@ variable "service_bus_topics" {
   default = []
 }
 
-variable "deploy_data_factory" {
-  description = "Controls whether the Data Factory module is deployed"
+variable "deploy_azure_firewall" {
+  description = "Controls whether the Azure Firewall module is deployed"
   type        = bool
   default     = false
+}
+
+variable "azure_firewall_network_rules" {
+  description = "List of network rules to apply to the firewall"
+  type = list(object({
+    name                  = string
+    description           = optional(string)
+    priority              = number
+    action                = string
+    source_addresses      = optional(list(string))
+    destination_addresses = optional(list(string))
+    destination_ports     = list(string)
+    source_ip_groups      = optional(list(string))
+    destination_ip_groups = optional(list(string))
+    protocols             = list(string)
+  }))
+  default = []
+}
+
+variable "azure_firewall_application_rules" {
+  description = "List of application rules to apply to the firewall"
+  type = list(object({
+    name             = string
+    description      = optional(string)
+    priority         = number
+    action           = string
+    source_addresses = optional(list(string))
+    source_ip_groups = optional(list(string))
+    target_fqdns     = optional(list(string))
+    fqdn_tags        = optional(list(string))
+    protocols = optional(list(object({
+      port = string
+      type = string
+    })))
+  }))
+  default = []
+}
+
+variable "azure_firewall_nat_rules" {
+  description = "List of NAT rules to apply to the firewall"
+  type = list(object({
+    name                = string
+    description         = optional(string)
+    priority            = number
+    action              = string
+    source_addresses    = optional(list(string))
+    destination_address = string
+    destination_ports   = list(string)
+    source_ip_groups    = optional(list(string))
+    protocols           = list(string)
+    translated_address  = string
+    translated_port     = string
+  }))
+  default = []
+}
+  
+variable "deploy_azure_data_factory" {
+  description = "Controlers whether Data Factory is deployed or not"
+  type = bool
+  default = false
 }
 
 variable "data_factory_managed_private_endpoints" {
@@ -222,9 +282,6 @@ variable "data_factory_managed_private_endpoints" {
     target_resource_id = string
     subresource_name   = string
     fqdns              = optional(list(string), [])
-  }))
-  default = []
-}
 
 variable "data_factory_git_configuration" {
   description = "Git configuration for the Data Factory"
