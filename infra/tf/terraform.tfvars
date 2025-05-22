@@ -174,6 +174,22 @@ deploy_service_bus             = false
 #     default_message_ttl = "P14D"  # 14 days
 #     subscriptions = [
 #       {
+
+deploy_data_factory = false
+# Example Data Factory configuration (uncomment to use)
+# data_factory_public_network_enabled = false
+# data_factory_managed_private_endpoints = [
+#   {
+#     name = "sql-server-endpoint"
+#     target_resource_id = "/subscriptions/{subscription_id}/resourceGroups/{resource_group}/providers/Microsoft.Sql/servers/{server_name}"
+#     subresource_name = "sqlServer"
+#   },
+#   {
+#     name = "storage-endpoint"
+#     target_resource_id = "/subscriptions/{subscription_id}/resourceGroups/{resource_group}/providers/Microsoft.Storage/storageAccounts/{storage_account_name}"
+#     subresource_name = "blob"
+#   }
+# ]
 #         name = "all-events"
 #         max_delivery_count = 10
 #       },

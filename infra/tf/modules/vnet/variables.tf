@@ -24,7 +24,7 @@ variable "subnets" {
     name             = string
     address_prefixes = list(string)
     nsg = optional(object({
-      name           = string
+      name = string
       security_rules = list(object({
         name                         = string
         priority                     = number
@@ -43,7 +43,7 @@ variable "subnets" {
       }))
     }))
     route_table = optional(object({
-      name   = string
+      name = string
       routes = list(object({
         name                   = string
         address_prefix         = string

@@ -3,6 +3,8 @@ name: Terraform Lint & Deploy
 on:
   workflow_dispatch:
   push:
+    branches:
+      - main
     paths:
       - 'infra/tf/**'
       - '.github/workflows/terraform-azure.yml'

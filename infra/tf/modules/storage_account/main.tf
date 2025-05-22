@@ -1,14 +1,14 @@
 resource "azurerm_storage_account" "this" {
-  name                     = var.storage_account_name
-  resource_group_name      = var.resource_group_name
-  location                 = var.location
-  account_tier             = split("_", var.sku_name)[0]
-  account_replication_type = split("_", var.sku_name)[1]
-  account_kind             = var.account_kind
-  access_tier              = var.access_tier
-  min_tls_version          = var.min_tls_version
+  name                          = var.storage_account_name
+  resource_group_name           = var.resource_group_name
+  location                      = var.location
+  account_tier                  = split("_", var.sku_name)[0]
+  account_replication_type      = split("_", var.sku_name)[1]
+  account_kind                  = var.account_kind
+  access_tier                   = var.access_tier
+  min_tls_version               = var.min_tls_version
   public_network_access_enabled = false
-  tags                     = var.tags
+  tags                          = var.tags
 }
 
 resource "azurerm_storage_container" "this" {
@@ -41,16 +41,16 @@ resource "azurerm_storage_share" "this" {
 }
 
 resource "azurerm_private_endpoint" "this" {
-  for_each = toset(var.private_endpoints)
-  name                = "pe-${azurerm_storage_account.this.name}-${each.key}"
-  location            = var.location
-  resource_group_name = var.resource_group_name
-  subnet_id           = var.subnet_id
+  for_each                      = toset(var.private_endpoints)
+  name                          = "pe-${azurerm_storage_account.this.name}-${each.key}"
+  location                      = var.location
+  resource_group_name           = var.resource_group_name
+  subnet_id                     = var.subnet_id
   custom_network_interface_name = "pe-${azurerm_storage_account.this.name}-${each.key}-nic"
 
   private_service_connection {
     name                           = "psc-${azurerm_storage_account.this.name}-${each.key}"
-    private_connection_resource_id  = azurerm_storage_account.this.id
+    private_connection_resource_id = azurerm_storage_account.this.id
     subresource_names              = [each.key]
     is_manual_connection           = false
   }
@@ -65,13 +65,13 @@ resource "azurerm_private_endpoint" "this" {
 }
 
 resource "azurerm_private_dns_zone" "this" {
-  for_each = var.create_private_dns_zone ? { for s in var.private_endpoints : s => s } : {}
-  name     = "privatelink.${each.key}.core.windows.net"
+  for_each            = var.create_private_dns_zone ? { for s in var.private_endpoints : s => s } : {}
+  name                = "privatelink.${each.key}.core.windows.net"
   resource_group_name = var.resource_group_name
 }
 
 resource "azurerm_private_dns_zone_virtual_network_link" "this" {
-  for_each = var.create_private_dns_zone ? { for s in var.private_endpoints : s => s } : {}
+  for_each              = var.create_private_dns_zone ? { for s in var.private_endpoints : s => s } : {}
   name                  = "pdzvnetlink-${each.key}"
   resource_group_name   = var.resource_group_name
   private_dns_zone_name = azurerm_private_dns_zone.this[each.key].name

@@ -40,28 +40,28 @@ variable "vnet_id" {
 variable "queues" {
   description = "List of Service Bus queues to create"
   type = list(object({
-    name                              = string
-    max_size_in_megabytes             = optional(number)
-    default_message_ttl               = optional(string)
-    max_delivery_count                = optional(number)
-    lock_duration                     = optional(string)
-    requires_duplicate_detection      = optional(bool)
-    requires_session                  = optional(bool)
+    name                                 = string
+    max_size_in_megabytes                = optional(number)
+    default_message_ttl                  = optional(string)
+    max_delivery_count                   = optional(number)
+    lock_duration                        = optional(string)
+    requires_duplicate_detection         = optional(bool)
+    requires_session                     = optional(bool)
     dead_lettering_on_message_expiration = optional(bool)
   }))
   default = [
     {
       name                  = "orders-queue"
       max_size_in_megabytes = 1024
-      default_message_ttl   = "P14D"  # 14 days
+      default_message_ttl   = "P14D" # 14 days
       max_delivery_count    = 10
     },
     {
-      name                              = "notifications-queue"
-      max_size_in_megabytes             = 1024
-      default_message_ttl               = "P7D"   # 7 days
-      max_delivery_count                = 5
-      requires_session                  = true
+      name                                 = "notifications-queue"
+      max_size_in_megabytes                = 1024
+      default_message_ttl                  = "P7D" # 7 days
+      max_delivery_count                   = 5
+      requires_session                     = true
       dead_lettering_on_message_expiration = true
     }
   ]
@@ -70,35 +70,35 @@ variable "queues" {
 variable "topics" {
   description = "List of Service Bus topics to create"
   type = list(object({
-    name                              = string
-    max_size_in_megabytes             = optional(number)
-    default_message_ttl               = optional(string)
-    requires_duplicate_detection      = optional(bool)
-    support_ordering                  = optional(bool)
+    name                         = string
+    max_size_in_megabytes        = optional(number)
+    default_message_ttl          = optional(string)
+    requires_duplicate_detection = optional(bool)
+    support_ordering             = optional(bool)
     subscriptions = optional(list(object({
-      name                            = string
-      max_delivery_count              = optional(number)
-      default_message_ttl             = optional(string)
-      lock_duration                   = optional(string)
-      dead_lettering_on_message_expiration = optional(bool)
+      name                                      = string
+      max_delivery_count                        = optional(number)
+      default_message_ttl                       = optional(string)
+      lock_duration                             = optional(string)
+      dead_lettering_on_message_expiration      = optional(bool)
       dead_lettering_on_filter_evaluation_error = optional(bool)
-      requires_session                = optional(bool)
+      requires_session                          = optional(bool)
     })), [])
   }))
   default = [
     {
       name                  = "events"
       max_size_in_megabytes = 1024
-      default_message_ttl   = "P14D"  # 14 days
+      default_message_ttl   = "P14D" # 14 days
       subscriptions = [
         {
-          name              = "all-events"
+          name               = "all-events"
           max_delivery_count = 10
         },
         {
           name                = "critical-events"
           max_delivery_count  = 20
-          default_message_ttl = "P7D"  # 7 days
+          default_message_ttl = "P7D" # 7 days
           requires_session    = true
         }
       ]
@@ -108,13 +108,13 @@ variable "topics" {
       max_size_in_megabytes = 1024
       subscriptions = [
         {
-          name                = "system-alerts"
-          max_delivery_count  = 10
+          name               = "system-alerts"
+          max_delivery_count = 10
         },
         {
-          name                                   = "security-alerts"
-          max_delivery_count                     = 10
-          dead_lettering_on_message_expiration   = true
+          name                                      = "security-alerts"
+          max_delivery_count                        = 10
+          dead_lettering_on_message_expiration      = true
           dead_lettering_on_filter_evaluation_error = true
         }
       ]
