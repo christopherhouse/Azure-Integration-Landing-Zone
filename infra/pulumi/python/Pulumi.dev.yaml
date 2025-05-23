@@ -1,0 +1,7 @@
+config:
+  azure:location: eastus2
+  azure-integration-landing-zone:resourceGroupName: RG-AIS-LZ-TF
+  azure-integration-landing-zone:suffix: lz
+  azure-integration-landing-zone:environment: dev
+  azure-integration-landing-zone:logAnalyticsWorkspaceName: log-ais-lz-tf
+  azure-integration-landing-zone:vnetAddressSpaces: ["10.10.0.0/16"]

@@ -1,0 +1,8 @@
+pulumi>=3.88.0
+pulumi-azure-native>=2.22.0
+pulumi-azure>=5.53.0
+pytest>=7.4.0
+pytest-mock>=3.11.1
+pylint>=3.0.1
+black>=23.7.0
+mypy>=1.5.1
