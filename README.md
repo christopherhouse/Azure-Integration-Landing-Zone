@@ -1,7 +1,7 @@
 # 🚀 Azure Integration Landing Zone
 
 Welcome to the **Azure Integration Landing Zone**!  
-This repository provides a modular, production-ready Terraform codebase for deploying a secure, scalable Azure integration environment.
+This repository provides multiple approaches for deploying a secure, scalable Azure integration environment, including both modern cloud-native tools and traditional mainframe-friendly options.
 
 ---
 
@@ -16,6 +16,13 @@ This repository provides a modular, production-ready Terraform codebase for depl
   - Azure Service Bus (Premium tier, private endpoint, and availability zone support)
   - Azure Data Factory (managed virtual network, private endpoints, and secure connectivity)
   - Azure Naming module integration for consistent resource names
+
+- **COBOL Implementation** 🆕:
+  - Complete COBOL-based Azure resource deployment using ARM REST APIs
+  - Mainframe-style configuration and deployment approach
+  - Familiar COBOL syntax for infrastructure-as-code
+  - Comprehensive unit testing and documentation
+  - Perfect for organizations with mainframe heritage
 
 - **Best Practices**:  
   - Azure RBAC
@@ -330,6 +337,47 @@ A complete example implementation is available in the [examples/service_bus](/in
   - Dead-lettering on expiration
 
 This module is ideal for organizations requiring a robust messaging infrastructure with enterprise-grade security, reliability, and scalability.
+
+---
+
+## 🔷 COBOL Implementation
+
+> **For mainframe developers who prefer familiar tools!**
+
+This repository now includes a complete **COBOL implementation** that provides the same Azure Integration Landing Zone deployment capabilities using traditional mainframe development approaches.
+
+### Features
+
+- **Pure COBOL**: Deploy Azure resources using COBOL programs and ARM REST APIs
+- **Mainframe-Style Configuration**: Fixed-width configuration files familiar to mainframe developers
+- **Comprehensive Coverage**: Supports all major Azure resources (Storage, Key Vault, VNet, Log Analytics, API Management)
+- **Unit Testing**: Complete test suite written in COBOL
+- **Error Handling**: Robust error handling and logging in traditional COBOL style
+
+### Quick Start
+
+```bash
+# Navigate to COBOL implementation
+cd infra/cobol
+
+# Configure your Azure credentials
+vi config/azure-config.conf
+
+# Build the COBOL programs
+./build.sh
+
+# Deploy your infrastructure
+./deploy.sh
+```
+
+### Why COBOL for Cloud?
+
+- **Leverage Existing Skills**: Use familiar COBOL syntax instead of learning new DSLs
+- **Enterprise Integration**: Seamlessly integrate cloud deployment with existing mainframe applications
+- **Proven Reliability**: COBOL's legendary reliability for mission-critical infrastructure
+- **Structured Approach**: COBOL's structured programming paradigm for maintainable infrastructure code
+
+For detailed documentation, see [infra/cobol/README.md](infra/cobol/README.md).
 
 ---
 
