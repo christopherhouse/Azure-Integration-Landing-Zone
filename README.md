@@ -1,7 +1,7 @@
 # 🚀 Azure Integration Landing Zone
 
 Welcome to the **Azure Integration Landing Zone**!  
-This repository provides a modular, production-ready Terraform codebase for deploying a secure, scalable Azure integration environment.
+This repository provides multiple approaches for deploying a secure, scalable Azure integration environment, including both modern cloud-native tools and traditional mainframe-friendly options.
 
 ---
 
@@ -16,6 +16,13 @@ This repository provides a modular, production-ready Terraform codebase for depl
   - Azure Service Bus (Premium tier, private endpoint, and availability zone support)
   - Azure Data Factory (managed virtual network, private endpoints, and secure connectivity)
   - Azure Naming module integration for consistent resource names
+
+- **COBOL Implementation** 🆕:
+  - Complete COBOL-based Azure resource deployment using ARM REST APIs
+  - Mainframe-style configuration and deployment approach
+  - Familiar COBOL syntax for infrastructure-as-code
+  - Comprehensive unit testing and documentation
+  - Perfect for organizations with mainframe heritage
 
 - **Best Practices**:  
   - Azure RBAC
@@ -330,6 +337,16 @@ A complete example implementation is available in the [examples/service_bus](/in
   - Dead-lettering on expiration
 
 This module is ideal for organizations requiring a robust messaging infrastructure with enterprise-grade security, reliability, and scalability.
+
+---
+
+## 🔷 COBOL Implementation
+
+> **For mainframe developers who prefer familiar tools!**
+
+This repository includes an alternative **COBOL implementation** for deploying the Azure Integration Landing Zone. For organizations with mainframe heritage, this implementation provides a familiar programming model.
+
+For details, documentation, and usage instructions, see [infra/cobol/README.md](infra/cobol/README.md).
 
 ---
 

@@ -1,0 +1,35 @@
+# COBOL-specific files to ignore
+bin/
+*.exe
+*.o
+*.obj
+*.lst
+*.log
+deployment.log
+
+# Temporary files
+*.tmp
+*.temp
+
+# Backup files
+*.bak
+*.backup
+
+# IDE files
+.vscode/
+*.code-workspace
+
+# OS specific files
+.DS_Store
+Thumbs.db
+
+# Compiled programs (keep source only)
+azuredeploy
+azureauth
+storage
+keyvault
+virtualnet
+loganalytics
+apimgmt
+testauth
+teststorage
