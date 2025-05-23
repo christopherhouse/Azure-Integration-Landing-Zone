@@ -34,7 +34,8 @@
            DISPLAY "Test " TEST-COUNTER ": Configuration Loading"
            
       *> Set up test configuration data
-           MOVE 'c5d4a6e8-69bf-4148-be25-cb362f83c370' TO SUBSCRIPTION-ID
+           MOVE 'c5d4a6e8-69bf-4148-be25-cb362f83c370' 
+               TO SUBSCRIPTION-ID
            MOVE 'test-tenant-id' TO TENANT-ID
            MOVE 'test-client-id' TO CLIENT-ID
            MOVE 'test-client-secret' TO CLIENT-SECRET

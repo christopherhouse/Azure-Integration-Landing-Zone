@@ -10,7 +10,7 @@
                10  RG-NAME                PIC X(64).
                10  RG-LOCATION            PIC X(32).
            05  ENVIRONMENT-INFO.
-               10  ENVIRONMENT            PIC X(16).
+               10  ENV-NAME               PIC X(16).
                10  SUFFIX                 PIC X(16).
            05  NETWORKING-INFO.
                10  VNET-NAME              PIC X(64).

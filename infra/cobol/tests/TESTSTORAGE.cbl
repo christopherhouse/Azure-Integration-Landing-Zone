@@ -17,6 +17,8 @@
        01  WS-TEST-RESULT              PIC X(6).
        01  WS-STORAGE-NAME             PIC X(64).
        01  WS-EXPECTED-NAME            PIC X(64).
+       01  WS-INPUT-POS                PIC 9(3).
+       01  WS-OUTPUT-POS               PIC 9(3).
        
        PROCEDURE DIVISION.
        MAIN-PROCEDURE.
@@ -37,13 +39,13 @@
            
       *> Set up test data
            MOVE 'apimbackup' TO SA-NAME-PREFIX(1)
-           MOVE 'dev' TO ENVIRONMENT
+           MOVE 'dev' TO ENV-NAME
            MOVE 'lz-tf' TO SUFFIX
            
       *> Simulate name generation logic
            STRING 'sa' 
                   SA-NAME-PREFIX(1)
-                  ENVIRONMENT
+                  ENV-NAME
                   SUFFIX
                DELIMITED BY SPACE INTO WS-STORAGE-NAME
            END-STRING
@@ -53,8 +55,19 @@
                'ABCDEFGHIJKLMNOPQRSTUVWXYZ' TO 
                'abcdefghijklmnopqrstuvwxyz'
            INSPECT WS-STORAGE-NAME REPLACING ALL '-' BY SPACE
-           MOVE FUNCTION SUBSTITUTE(WS-STORAGE-NAME, ' ', '') 
-               TO WS-STORAGE-NAME
+      *> Remove spaces by building clean string
+           MOVE SPACES TO WS-EXPECTED-NAME
+           MOVE 1 TO WS-INPUT-POS
+           MOVE 1 TO WS-OUTPUT-POS
+           PERFORM UNTIL WS-INPUT-POS > LENGTH OF WS-STORAGE-NAME
+               IF WS-STORAGE-NAME(WS-INPUT-POS:1) NOT = SPACE
+                   MOVE WS-STORAGE-NAME(WS-INPUT-POS:1) 
+                       TO WS-EXPECTED-NAME(WS-OUTPUT-POS:1)
+                   ADD 1 TO WS-OUTPUT-POS
+               END-IF
+               ADD 1 TO WS-INPUT-POS
+           END-PERFORM
+           MOVE WS-EXPECTED-NAME TO WS-STORAGE-NAME
            
            MOVE 'saapimbackupdevlztf' TO WS-EXPECTED-NAME
            
@@ -99,8 +112,9 @@
            DISPLAY "Test " TEST-COUNTER ": API URL Building"
            
       *> Set up test data
-           MOVE 'c5d4a6e8-69bf-4148-be25-cb362f83c370' TO SUBSCRIPTION-ID
-           MOVE 'RG-AIS-LZ-TF' TO RG-NAME
+                      MOVE 'c5d4a6e8-69bf-4148-be25-cb362f83c370' 
+               TO SUBSCRIPTION-ID
+                      MOVE 'RG-AIS-LZ-TF' TO RG-NAME
            
       *> Verify URL components are available
            IF SUBSCRIPTION-ID NOT = SPACES
