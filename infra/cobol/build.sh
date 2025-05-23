@@ -38,6 +38,8 @@ if command -v cobc >/dev/null 2>&1; then
         "KEYVAULT:Key Vault deployment"
         "VIRTUALNET:Virtual Network deployment"
         "LOGANALYTICS:Log Analytics deployment"
+        "SERVICEBUS:Service Bus deployment"
+        "DATAFACTORY:Data Factory deployment"
     )
     
     compiled_count=0
@@ -68,6 +70,8 @@ if command -v cobc >/dev/null 2>&1; then
     declare -a test_programs=(
         "TESTAUTH:Authentication module tests"
         "TESTSTORAGE:Storage module tests"
+        "TESTSERVICEBUS:Service Bus module tests"
+        "TESTDATAFACTORY:Data Factory module tests"
     )
     
     for test_info in "${test_programs[@]}"; do

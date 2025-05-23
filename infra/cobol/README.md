@@ -1,18 +1,18 @@
-# Azure Integration Landing Zone - COBOL Implementation
+# 🚀 Azure Integration Landing Zone - COBOL Implementation
 
 This directory contains a complete COBOL implementation for deploying Azure Integration Landing Zone resources using Azure Resource Manager (ARM) REST APIs. This implementation demonstrates how mainframe developers can leverage their existing COBOL skills to manage cloud infrastructure.
 
-## 🚀 Overview
+## 📌 Overview
 
 The Azure Integration Landing Zone COBOL implementation provides a mainframe-style approach to cloud resource deployment. Instead of learning new domain-specific languages like Terraform or ARM templates, mainframe developers can use familiar COBOL syntax and structures to deploy Azure resources.
 
 ### Why COBOL for Cloud Infrastructure?
 
-- **Familiar Syntax**: Leverage existing COBOL skills for cloud deployment
-- **Structured Programming**: COBOL's structured approach provides clear, maintainable infrastructure code
-- **Enterprise Integration**: Seamlessly integrate cloud deployment with existing mainframe applications
-- **Proven Reliability**: COBOL's reliability and error handling for mission-critical infrastructure
-- **Copybook Reusability**: Share configuration structures across multiple deployment scenarios
+- 🧠 **Familiar Syntax**: Leverage existing COBOL skills for cloud deployment
+- 🏗️ **Structured Programming**: COBOL's structured approach provides clear, maintainable infrastructure code
+- 🔄 **Enterprise Integration**: Seamlessly integrate cloud deployment with existing mainframe applications
+- 🛡️ **Proven Reliability**: COBOL's reliability and error handling for mission-critical infrastructure
+- 📋 **Copybook Reusability**: Share configuration structures across multiple deployment scenarios
 
 ## 📁 Directory Structure
 
@@ -24,7 +24,9 @@ infra/cobol/
 │   ├── STORAGE.cbl        # Storage Account deployment
 │   ├── KEYVAULT.cbl       # Key Vault deployment
 │   ├── VIRTUALNET.cbl     # Virtual Network deployment
-│   └── LOGANALYTICS.cbl   # Log Analytics Workspace deployment
+│   ├── LOGANALYTICS.cbl   # Log Analytics Workspace deployment
+│   ├── SERVICEBUS.cbl     # Service Bus deployment
+│   └── DATAFACTORY.cbl    # Data Factory deployment
 ├── copybooks/              # COBOL copybooks for data structures
 │   ├── AZURECONFIG.cpy    # Azure configuration data structure
 │   └── HTTPCLIENT.cpy     # HTTP client data structures
@@ -33,11 +35,13 @@ infra/cobol/
 ├── tests/                  # Unit tests
 │   ├── TESTAUTH.cbl       # Authentication module tests
 │   ├── TESTSTORAGE.cbl    # Storage module tests
+│   ├── TESTSERVICEBUS.cbl # Service Bus module tests
+│   ├── TESTDATAFACTORY.cbl # Data Factory module tests
 │   └── run-tests.sh       # Test runner script
 └── doc/                    # Documentation (this README)
 ```
 
-## 🔧 Prerequisites
+## 🛠️ Prerequisites
 
 ### Software Requirements
 
@@ -138,7 +142,40 @@ APIM_PUBLISHER_NAME=Contoso
 APIM_PUBLISHER_EMAIL=apis@contoso.net
 ```
 
-## 🏗️ Building and Running
+#### Service Bus (Optional)
+```
+SERVICEBUS_DEPLOY=Y
+SERVICEBUS_CAPACITY_UNITS=01
+SERVICEBUS_QUEUE_COUNT=02
+SERVICEBUS_QUEUE_001_NAME=orders-queue
+SERVICEBUS_QUEUE_001_SIZE_MB=1024
+SERVICEBUS_QUEUE_001_TTL=P14D
+SERVICEBUS_QUEUE_001_SESSIONS=N
+SERVICEBUS_QUEUE_002_NAME=notifications-queue
+SERVICEBUS_QUEUE_002_SIZE_MB=1024
+SERVICEBUS_QUEUE_002_TTL=P7D
+SERVICEBUS_QUEUE_002_SESSIONS=Y
+SERVICEBUS_TOPIC_COUNT=01
+SERVICEBUS_TOPIC_001_NAME=events
+SERVICEBUS_TOPIC_001_SIZE_MB=1024
+SERVICEBUS_TOPIC_001_TTL=P14D
+```
+
+#### Data Factory (Optional)
+```
+DATAFACTORY_DEPLOY=Y
+DATAFACTORY_PUBLIC_NETWORK=N
+DATAFACTORY_MANAGED_VNET=Y
+DATAFACTORY_IDENTITY_TYPE=SystemAssigned
+DATAFACTORY_GIT_ENABLED=N
+DATAFACTORY_MANAGED_PE_COUNT=02
+DATAFACTORY_PE_001_NAME=sql-server-endpoint
+DATAFACTORY_PE_001_SUBRESOURCE=sqlServer
+DATAFACTORY_PE_002_NAME=storage-endpoint
+DATAFACTORY_PE_002_SUBRESOURCE=blob
+```
+
+## 🚀 Building and Running
 
 ### 1. Compile the Programs
 
@@ -146,19 +183,27 @@ APIM_PUBLISHER_EMAIL=apis@contoso.net
 # Navigate to the COBOL directory
 cd infra/cobol
 
-# Compile main programs
+# Build all programs using the build script
+./build.sh
+
+# Or compile individual programs
 cobc -x -I copybooks -o bin/azuredeploy src/AZUREDEPLOY.cbl
 cobc -x -I copybooks -o bin/azureauth src/AZUREAUTH.cbl
 cobc -x -I copybooks -o bin/storage src/STORAGE.cbl
 cobc -x -I copybooks -o bin/keyvault src/KEYVAULT.cbl
 cobc -x -I copybooks -o bin/virtualnet src/VIRTUALNET.cbl
 cobc -x -I copybooks -o bin/loganalytics src/LOGANALYTICS.cbl
+cobc -x -I copybooks -o bin/servicebus src/SERVICEBUS.cbl
+cobc -x -I copybooks -o bin/datafactory src/DATAFACTORY.cbl
 ```
 
 ### 2. Run the Deployment
 
 ```bash
-# Execute the main deployment program
+# Execute the deployment script
+./deploy.sh
+
+# Or execute the main deployment program directly
 ./bin/azuredeploy
 ```
 
@@ -213,6 +258,20 @@ cd tests
 - Configures retention and capacity settings
 - Sets up monitoring infrastructure
 
+#### SERVICEBUS.cbl
+- Creates Premium tier Service Bus namespace
+- Configures queues with TTL, sessions, and delivery count
+- Configures topics with subscriptions
+- Implements private networking via private endpoints
+- Sets up Azure RBAC and security best practices
+
+#### DATAFACTORY.cbl
+- Creates Azure Data Factory
+- Configures managed virtual network
+- Sets up private endpoints for secure connectivity
+- Configures managed private endpoints to data sources
+- Implements identity management with managed identity
+
 ## 🔒 Security Considerations
 
 ### Authentication
@@ -235,6 +294,8 @@ cd tests
 ### Unit Test Coverage
 - **TESTAUTH.cbl**: Tests authentication module
 - **TESTSTORAGE.cbl**: Tests storage account deployment logic
+- **TESTSERVICEBUS.cbl**: Tests Service Bus name generation and configuration
+- **TESTDATAFACTORY.cbl**: Tests Data Factory name generation and configurations
 
 ### Test Execution
 ```bash

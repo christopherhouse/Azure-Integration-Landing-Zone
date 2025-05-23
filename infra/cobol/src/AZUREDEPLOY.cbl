@@ -34,6 +34,8 @@
            05  KEY-VAULT-DEPLOYED      PIC X VALUE 'N'.
            05  STORAGE-DEPLOYED        PIC X VALUE 'N'.
            05  APIM-DEPLOYED           PIC X VALUE 'N'.
+           05  SB-DEPLOYED             PIC X VALUE 'N'.
+           05  DF-DEPLOYED             PIC X VALUE 'N'.
        
        PROCEDURE DIVISION.
        MAIN-PROCEDURE.
@@ -91,6 +93,15 @@
            
            IF APIM-DEPLOY-FLAG = 'Y'
                PERFORM DEPLOY-API-MANAGEMENT
+           END-IF
+           
+           IF SB-DEPLOY-FLAG = 'Y'
+               PERFORM DEPLOY-SERVICE-BUS
+           END-IF
+           
+           IF DF-DEPLOY-FLAG = 'Y'
+               PERFORM DEPLOY-DATA-FACTORY
+           END-IF
            END-IF.
        
        DEPLOY-LOG-ANALYTICS.
@@ -208,6 +219,52 @@
                DISPLAY WS-CURRENT-RESOURCE " deployment failed"
            END-IF.
        
+       DEPLOY-SERVICE-BUS.
+           MOVE 'Service Bus' TO WS-CURRENT-RESOURCE
+           DISPLAY "Deploying " WS-CURRENT-RESOURCE "..."
+           
+           CALL 'SERVICEBUS' USING BY REFERENCE AZURE-CONFIG
+                                              AZURE-AUTH-TOKEN
+                                              WS-RETURN-CODE
+           
+           IF WS-RETURN-CODE = 0
+               MOVE 'Y' TO SB-DEPLOYED
+               STRING 'Successfully deployed ' WS-CURRENT-RESOURCE
+                   DELIMITED BY SIZE INTO WS-LOG-MESSAGE
+               END-STRING
+               WRITE LOG-RECORD FROM WS-LOG-MESSAGE
+               DISPLAY WS-CURRENT-RESOURCE " deployment successful"
+           ELSE
+               STRING 'Failed to deploy ' WS-CURRENT-RESOURCE
+                   DELIMITED BY SIZE INTO WS-LOG-MESSAGE
+               END-STRING
+               WRITE LOG-RECORD FROM WS-LOG-MESSAGE
+               DISPLAY WS-CURRENT-RESOURCE " deployment failed"
+           END-IF.
+
+       DEPLOY-DATA-FACTORY.
+           MOVE 'Data Factory' TO WS-CURRENT-RESOURCE
+           DISPLAY "Deploying " WS-CURRENT-RESOURCE "..."
+           
+           CALL 'DATAFACTORY' USING BY REFERENCE AZURE-CONFIG
+                                               AZURE-AUTH-TOKEN
+                                               WS-RETURN-CODE
+           
+           IF WS-RETURN-CODE = 0
+               MOVE 'Y' TO DF-DEPLOYED
+               STRING 'Successfully deployed ' WS-CURRENT-RESOURCE
+                   DELIMITED BY SIZE INTO WS-LOG-MESSAGE
+               END-STRING
+               WRITE LOG-RECORD FROM WS-LOG-MESSAGE
+               DISPLAY WS-CURRENT-RESOURCE " deployment successful"
+           ELSE
+               STRING 'Failed to deploy ' WS-CURRENT-RESOURCE
+                   DELIMITED BY SIZE INTO WS-LOG-MESSAGE
+               END-STRING
+               WRITE LOG-RECORD FROM WS-LOG-MESSAGE
+               DISPLAY WS-CURRENT-RESOURCE " deployment failed"
+           END-IF.
+       
        FINALIZE-DEPLOYMENT.
            MOVE 'COMPLETED' TO WS-DEPLOYMENT-STATUS
            DISPLAY "Deployment completed"
@@ -218,6 +275,8 @@
            DISPLAY "Key Vault: " KEY-VAULT-DEPLOYED
            DISPLAY "Storage Accounts: " STORAGE-DEPLOYED
            DISPLAY "API Management: " APIM-DEPLOYED
+           DISPLAY "Service Bus: " SB-DEPLOYED
+           DISPLAY "Data Factory: " DF-DEPLOYED
            
            STRING 'Deployment completed with status: ' WS-DEPLOYMENT-STATUS
                DELIMITED BY SIZE INTO WS-LOG-MESSAGE

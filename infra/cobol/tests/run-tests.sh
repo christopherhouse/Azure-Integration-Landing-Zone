@@ -78,6 +78,30 @@ if [ "$INSTALLATION_SUCCESS" = true ]; then
         echo "$compilation_output"
         COMPILATION_SUCCESS=false
     fi
+
+    echo ""
+    echo "Compiling TESTSERVICEBUS..."
+    compilation_output=$(cobc -x -I "$COPYBOOK_DIR" -o "$COBOL_DIR/bin/testservicebus" "$TEST_DIR/TESTSERVICEBUS.cbl" 2>&1)
+    if [ $? -eq 0 ]; then
+        echo "✓ TESTSERVICEBUS compiled successfully"
+    else
+        echo "✗ TESTSERVICEBUS compilation failed"
+        echo "Error details:"
+        echo "$compilation_output"
+        COMPILATION_SUCCESS=false
+    fi
+    
+    echo ""
+    echo "Compiling TESTDATAFACTORY..."
+    compilation_output=$(cobc -x -I "$COPYBOOK_DIR" -o "$COBOL_DIR/bin/testdatafactory" "$TEST_DIR/TESTDATAFACTORY.cbl" 2>&1)
+    if [ $? -eq 0 ]; then
+        echo "✓ TESTDATAFACTORY compiled successfully"
+    else
+        echo "✗ TESTDATAFACTORY compilation failed"
+        echo "Error details:"
+        echo "$compilation_output"
+        COMPILATION_SUCCESS=false
+    fi
     
     # Show syntax help if compilation failed
     if [ "$COMPILATION_SUCCESS" = false ]; then
@@ -116,6 +140,28 @@ if [ "$INSTALLATION_SUCCESS" = true ]; then
             if [ $? -ne 0 ]; then
                 TEST_RUN_SUCCESS=false
                 echo "✗ TESTSTORAGE failed with exit code $?"
+            fi
+            echo ""
+        fi
+        
+        if [ -f "$COBOL_DIR/bin/testservicebus" ]; then
+            echo "Running TESTSERVICEBUS..."
+            cd "$COBOL_DIR"
+            ./bin/testservicebus
+            if [ $? -ne 0 ]; then
+                TEST_RUN_SUCCESS=false
+                echo "✗ TESTSERVICEBUS failed with exit code $?"
+            fi
+            echo ""
+        fi
+        
+        if [ -f "$COBOL_DIR/bin/testdatafactory" ]; then
+            echo "Running TESTDATAFACTORY..."
+            cd "$COBOL_DIR"
+            ./bin/testdatafactory
+            if [ $? -ne 0 ]; then
+                TEST_RUN_SUCCESS=false
+                echo "✗ TESTDATAFACTORY failed with exit code $?"
             fi
             echo ""
         fi

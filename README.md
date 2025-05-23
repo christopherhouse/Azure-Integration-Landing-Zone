@@ -344,40 +344,9 @@ This module is ideal for organizations requiring a robust messaging infrastructu
 
 > **For mainframe developers who prefer familiar tools!**
 
-This repository now includes a complete **COBOL implementation** that provides the same Azure Integration Landing Zone deployment capabilities using traditional mainframe development approaches.
+This repository includes an alternative **COBOL implementation** for deploying the Azure Integration Landing Zone. For organizations with mainframe heritage, this implementation provides a familiar programming model.
 
-### Features
-
-- **Pure COBOL**: Deploy Azure resources using COBOL programs and ARM REST APIs
-- **Mainframe-Style Configuration**: Fixed-width configuration files familiar to mainframe developers
-- **Comprehensive Coverage**: Supports all major Azure resources (Storage, Key Vault, VNet, Log Analytics, API Management)
-- **Unit Testing**: Complete test suite written in COBOL
-- **Error Handling**: Robust error handling and logging in traditional COBOL style
-
-### Quick Start
-
-```bash
-# Navigate to COBOL implementation
-cd infra/cobol
-
-# Configure your Azure credentials
-vi config/azure-config.conf
-
-# Build the COBOL programs
-./build.sh
-
-# Deploy your infrastructure
-./deploy.sh
-```
-
-### Why COBOL for Cloud?
-
-- **Leverage Existing Skills**: Use familiar COBOL syntax instead of learning new DSLs
-- **Enterprise Integration**: Seamlessly integrate cloud deployment with existing mainframe applications
-- **Proven Reliability**: COBOL's legendary reliability for mission-critical infrastructure
-- **Structured Approach**: COBOL's structured programming paradigm for maintainable infrastructure code
-
-For detailed documentation, see [infra/cobol/README.md](infra/cobol/README.md).
+For details, documentation, and usage instructions, see [infra/cobol/README.md](infra/cobol/README.md).
 
 ---
 

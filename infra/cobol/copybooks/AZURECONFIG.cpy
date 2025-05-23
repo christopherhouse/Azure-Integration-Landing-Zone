@@ -39,3 +39,30 @@
                10  APIM-SKU-CAPACITY      PIC 9(2).
                10  APIM-PUBLISHER-NAME    PIC X(64).
                10  APIM-PUBLISHER-EMAIL   PIC X(128).
+           05  SERVICE-BUS-INFO.
+               10  SB-DEPLOY-FLAG         PIC X(1).
+               10  SB-NAME                PIC X(64).
+               10  SB-CAPACITY-UNITS      PIC 9(2).
+               10  SB-QUEUE-COUNT         PIC 9(2).
+               10  SB-QUEUE-INFO OCCURS 5 TIMES.
+                   15  SB-QUEUE-NAME      PIC X(32).
+                   15  SB-QUEUE-SIZE-MB   PIC 9(6).
+                   15  SB-QUEUE-TTL       PIC X(16).
+                   15  SB-QUEUE-DELIVERY  PIC 9(3).
+               10  SB-TOPIC-COUNT         PIC 9(2).
+               10  SB-TOPIC-INFO OCCURS 5 TIMES.
+                   15  SB-TOPIC-NAME      PIC X(32).
+                   15  SB-TOPIC-SIZE-MB   PIC 9(6).
+                   15  SB-TOPIC-TTL       PIC X(16).
+           05  DATA-FACTORY-INFO.
+               10  DF-DEPLOY-FLAG         PIC X(1).
+               10  DF-NAME                PIC X(64).
+               10  DF-PUBLIC-NETWORK      PIC X(1).
+               10  DF-MANAGED-VNET        PIC X(1).
+               10  DF-IDENTITY-TYPE       PIC X(16).
+               10  DF-GIT-ENABLED         PIC X(1).
+               10  DF-MANAGED-PE-COUNT    PIC 9(2).
+               10  DF-MANAGED-PE-INFO OCCURS 5 TIMES.
+                   15  DF-PE-NAME         PIC X(32).
+                   15  DF-PE-TARGET-ID    PIC X(128).
+                   15  DF-PE-SUBRESOURCE  PIC X(16).
