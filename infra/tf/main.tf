@@ -72,6 +72,25 @@ module "key_vault" {
   tags                       = var.tags
 }
 
+module "azure_firewall" {
+  count  = var.azure_firewall.deploy_azure_firewall ? 1 : 0
+  source = "./modules/azure_firewall"
+  config = {
+    name                       = module.names.firewall_name
+    location                   = data.azurerm_resource_group.rg.location
+    resource_group_name        = data.azurerm_resource_group.rg.name
+    subnet_id                  = module.vnet.subnet_ids["AzureFirewallSubnet"]
+    force_tunneling_subnet_id  = module.vnet.subnet_ids["AzureFirewallManagementSubnet"]
+    log_analytics_workspace_id = module.log_analytics.workspace_id
+    sku_name                   = var.azure_firewall.sku_name
+    sku_tier                   = var.azure_firewall.sku_tier
+    network_rules              = var.azure_firewall.network_rules
+    application_rules          = var.azure_firewall.application_rules
+    nat_rules                  = var.azure_firewall.nat_rules
+    tags                       = var.tags
+  }
+}
+
 module "api_management" {
   count                           = var.deploy_api_management ? 1 : 0
   source                          = "./modules/api_management"
@@ -152,7 +171,7 @@ module "service_bus" {
 }
 
 module "data_factory" {
-  count                          = var.deploy_data_factory ? 1 : 0
+  count                          = var.deploy_azure_data_factory ? 1 : 0
   source                         = "./modules/data_factory"
   name                           = module.names.data_factory_name
   location                       = data.azurerm_resource_group.rg.location
