@@ -191,21 +191,21 @@ deploy_service_bus             = false
 #     subscriptions = [
 #       {
 
-deploy_data_factory = false
+deploy_azure_data_factory = false
 # Example Data Factory configuration (uncomment to use)
 # data_factory_public_network_enabled = false
-# data_factory_managed_private_endpoints = [
-#   {
-#     name = "sql-server-endpoint"
-#     target_resource_id = "/subscriptions/{subscription_id}/resourceGroups/{resource_group}/providers/Microsoft.Sql/servers/{server_name}"
-#     subresource_name = "sqlServer"
-#   },
-#   {
-#     name = "storage-endpoint"
-#     target_resource_id = "/subscriptions/{subscription_id}/resourceGroups/{resource_group}/providers/Microsoft.Storage/storageAccounts/{storage_account_name}"
-#     subresource_name = "blob"
-#   }
-# ]
+data_factory_managed_private_endpoints = [
+   {
+     name = "sql-server-endpoint"
+     target_resource_id = "/subscriptions/{subscription_id}/resourceGroups/{resource_group}/providers/Microsoft.Sql/servers/{server_name}"
+     subresource_name = "sqlServer"
+   },
+   {
+     name = "storage-endpoint"
+    target_resource_id = "/subscriptions/{subscription_id}/resourceGroups/{resource_group}/providers/Microsoft.Storage/storageAccounts/{storage_account_name}"
+     subresource_name = "blob"
+   }
+ ]
 #         name = "all-events"
 #         max_delivery_count = 10
 #       },
@@ -255,9 +255,6 @@ storage_accounts = [
   }
 ]
 
-deploy_api_management = true
-deploy_app_service_environment = false
-deploy_service_bus = false
 deploy_azure_firewall = true
 
 azure_firewall_network_rules = [
@@ -310,7 +307,7 @@ azure_firewall_application_rules = [
     priority         = 100
     action           = "Allow"
     source_addresses = ["10.10.0.0/16"]
-    target_fqdns     = ["*.microsoft.com", "*.microsoftonline.com"]
+    destination_fqdns = ["*.microsoft.com", "*.microsoftonline.com"]
     protocols = [
       {
         port = "443"
@@ -328,7 +325,7 @@ azure_firewall_application_rules = [
     priority         = 110
     action           = "Allow"
     source_addresses = ["10.10.3.0/24"] # APIM subnet
-    target_fqdns     = [
+    destination_fqdns = [
       "management.azure.com",
       "login.microsoftonline.com",
       "login.windows.net",
@@ -354,11 +351,11 @@ azure_firewall_application_rules = [
     priority         = 120
     action           = "Allow"
     source_addresses = ["10.10.3.0/24"] # APIM subnet
-    target_fqdns     = [
+    destination_fqdns = [
       "whatismyipaddress.com", # For diagnostics 
       "*.azureedge.net",
       "*.azure-api.net", 
-      "waws-prod-*.cloudapp.net",
+      "*.cloudapp.net",
       "*.cloudapp.azure.com",
       "github.com", 
       "api.github.com", 
@@ -374,18 +371,18 @@ azure_firewall_application_rules = [
 ]
 
 azure_firewall_nat_rules = [
-  {
-    name                = "InboundToAPIM"
-    description         = "Inbound NAT rule to APIM private interface"
-    priority            = 100
-    action              = "Dnat"
-    source_addresses    = ["*"]
-    destination_address = "PUBLIC-IP-ADDRESS-PLACEHOLDER" # Replace with actual public IP in production
-    destination_ports   = ["443"]
-    protocols           = ["TCP"]
-    translated_address  = "10.10.3.4" # Replace with actual APIM private IP in production
-    translated_port     = "443"
-  }
+  # {
+  #   name                = "InboundToAPIM"
+  #   description         = "Inbound NAT rule to APIM private interface"
+  #   priority            = 100
+  #   action              = "Dnat"
+  #   source_addresses    = ["*"]
+  #   destination_address = "" # Replace with actual public IP in production
+  #   destination_ports   = ["443"]
+  #   protocols           = ["TCP"]
+  #   translated_address  = "10.10.3.4" # Replace with actual APIM private IP in production
+  #   translated_port     = "443"
+  # }
 ]
 
 tags = {

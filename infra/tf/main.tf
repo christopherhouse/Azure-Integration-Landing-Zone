@@ -168,7 +168,7 @@ module "service_bus" {
 }
 
 module "data_factory" {
-  count                          = var.deploy_data_factory ? 1 : 0
+  count                          = var.deploy_azure_data_factory ? 1 : 0
   source                         = "./modules/data_factory"
   name                           = module.names.data_factory_name
   location                       = data.azurerm_resource_group.rg.location

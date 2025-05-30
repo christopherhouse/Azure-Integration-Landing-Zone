@@ -37,9 +37,8 @@ variable "enable_force_tunneling" {
 }
 
 variable "force_tunneling_subnet_id" {
-  description = "The ID of the subnet for Azure Firewall's force tunneling. Only required if force tunneling is enabled"
+  description = "The ID of the subnet for Azure Firewall's force tunneling. This is always required."
   type        = string
-  default     = null
 }
 
 variable "network_rules" {
@@ -68,7 +67,7 @@ variable "application_rules" {
     action           = string
     source_addresses = optional(list(string))
     source_ip_groups = optional(list(string))
-    target_fqdns     = optional(list(string))
+    destination_fqdns = optional(list(string))
     fqdn_tags        = optional(list(string))
     protocols = optional(list(object({
       port = string

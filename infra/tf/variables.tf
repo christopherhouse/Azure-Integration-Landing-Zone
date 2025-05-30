@@ -241,8 +241,7 @@ variable "azure_firewall_application_rules" {
     action           = string
     source_addresses = optional(list(string))
     source_ip_groups = optional(list(string))
-    target_fqdns     = optional(list(string))
-    fqdn_tags        = optional(list(string))
+    destination_fqdns = optional(list(string))
     protocols = optional(list(object({
       port = string
       type = string
@@ -281,7 +280,8 @@ variable "data_factory_managed_private_endpoints" {
     name               = string
     target_resource_id = string
     subresource_name   = string
-    fqdns              = optional(list(string), [])
+    fqdns              = optional(list(string), [])}))
+}
 
 variable "data_factory_git_configuration" {
   description = "Git configuration for the Data Factory"

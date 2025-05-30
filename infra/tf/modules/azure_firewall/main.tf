@@ -30,18 +30,14 @@ resource "azurerm_firewall" "this" {
     public_ip_address_id = azurerm_public_ip.this.id
   }
 
-  dynamic "management_ip_configuration" {
-    for_each = var.enable_force_tunneling && var.force_tunneling_subnet_id != null ? [1] : []
-    content {
-      name                 = "forcetunnel"
-      subnet_id            = var.force_tunneling_subnet_id
-      public_ip_address_id = azurerm_public_ip.forcetunnel[0].id
-    }
+  management_ip_configuration {
+    name                 = "forcetunnel"
+    subnet_id            = var.force_tunneling_subnet_id
+    public_ip_address_id = azurerm_public_ip.forcetunnel.id
   }
 }
 
 resource "azurerm_public_ip" "forcetunnel" {
-  count               = var.enable_force_tunneling && var.force_tunneling_subnet_id != null ? 1 : 0
   name                = "${var.name}-forcetunnel-pip"
   location            = var.location
   resource_group_name = var.resource_group_name
@@ -95,9 +91,7 @@ resource "azurerm_firewall_policy_rule_collection_group" "application_rules" {
         description      = rule.value.description
         source_addresses = rule.value.source_addresses
         source_ip_groups = rule.value.source_ip_groups
-        target_fqdns     = rule.value.target_fqdns
-        fqdn_tags        = rule.value.fqdn_tags
-
+        destination_fqdns = try(rule.value.destination_fqdns, null)
         dynamic "protocols" {
           for_each = rule.value.protocols != null ? rule.value.protocols : []
           content {
