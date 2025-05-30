@@ -14,9 +14,7 @@ resource "azurerm_eventhub_namespace" "this" {
 resource "azurerm_eventhub" "this" {
   for_each            = { for eh in var.config.event_hubs : eh.name => eh }
   name                = each.value.name
-  namespace_name      = azurerm_eventhub_namespace.this.name
-  resource_group_name = var.resource_group_name
-  
+  namespace_id        = azurerm_eventhub_namespace.this.id
   partition_count   = lookup(each.value, "partition_count", 2)
   message_retention = lookup(each.value, "message_retention", 1)
 }

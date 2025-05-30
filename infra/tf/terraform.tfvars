@@ -225,7 +225,7 @@ service_bus = {
 }
 
 event_hub = {
-  deploy   = false
+  deploy   = true
   capacity = 1
   event_hubs = [
     {
