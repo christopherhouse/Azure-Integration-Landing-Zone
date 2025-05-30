@@ -209,69 +209,61 @@ variable "service_bus_topics" {
   default = []
 }
 
-variable "deploy_azure_firewall" {
-  description = "Controls whether the Azure Firewall module is deployed"
-  type        = bool
-  default     = false
+variable "azure_firewall" {
+  description = "Configuration for Azure Firewall deployment and rules"
+  type = object({
+    deploy_azure_firewall  = bool
+    sku_name               = optional(string, "AZFW_VNet")
+    sku_tier               = optional(string, "Standard")
+    enable_force_tunneling = optional(bool, true)
+    network_rules = optional(list(object({
+      name                  = string
+      description           = optional(string)
+      priority              = number
+      action                = string
+      source_addresses      = optional(list(string))
+      destination_addresses = optional(list(string))
+      destination_ports     = list(string)
+      source_ip_groups      = optional(list(string))
+      destination_ip_groups = optional(list(string))
+      protocols             = list(string)
+    })), [])
+    application_rules = optional(list(object({
+      name              = string
+      description       = optional(string)
+      priority          = number
+      action            = string
+      source_addresses  = optional(list(string))
+      source_ip_groups  = optional(list(string))
+      destination_fqdns = optional(list(string))
+      protocols = optional(list(object({
+        port = string
+        type = string
+      })))
+    })), [])
+    nat_rules = optional(list(object({
+      name                = string
+      description         = optional(string)
+      priority            = number
+      action              = string
+      source_addresses    = optional(list(string))
+      destination_address = string
+      destination_ports   = list(string)
+      source_ip_groups    = optional(list(string))
+      protocols           = list(string)
+      translated_address  = string
+      translated_port     = string
+    })), [])
+  })
+  default = {
+    deploy_azure_firewall = false
+  }
 }
 
-variable "azure_firewall_network_rules" {
-  description = "List of network rules to apply to the firewall"
-  type = list(object({
-    name                  = string
-    description           = optional(string)
-    priority              = number
-    action                = string
-    source_addresses      = optional(list(string))
-    destination_addresses = optional(list(string))
-    destination_ports     = list(string)
-    source_ip_groups      = optional(list(string))
-    destination_ip_groups = optional(list(string))
-    protocols             = list(string)
-  }))
-  default = []
-}
-
-variable "azure_firewall_application_rules" {
-  description = "List of application rules to apply to the firewall"
-  type = list(object({
-    name             = string
-    description      = optional(string)
-    priority         = number
-    action           = string
-    source_addresses = optional(list(string))
-    source_ip_groups = optional(list(string))
-    destination_fqdns = optional(list(string))
-    protocols = optional(list(object({
-      port = string
-      type = string
-    })))
-  }))
-  default = []
-}
-
-variable "azure_firewall_nat_rules" {
-  description = "List of NAT rules to apply to the firewall"
-  type = list(object({
-    name                = string
-    description         = optional(string)
-    priority            = number
-    action              = string
-    source_addresses    = optional(list(string))
-    destination_address = string
-    destination_ports   = list(string)
-    source_ip_groups    = optional(list(string))
-    protocols           = list(string)
-    translated_address  = string
-    translated_port     = string
-  }))
-  default = []
-}
-  
 variable "deploy_azure_data_factory" {
   description = "Controlers whether Data Factory is deployed or not"
-  type = bool
-  default = false
+  type        = bool
+  default     = false
 }
 
 variable "data_factory_managed_private_endpoints" {
@@ -280,7 +272,7 @@ variable "data_factory_managed_private_endpoints" {
     name               = string
     target_resource_id = string
     subresource_name   = string
-    fqdns              = optional(list(string), [])}))
+  fqdns = optional(list(string), []) }))
 }
 
 variable "data_factory_git_configuration" {
