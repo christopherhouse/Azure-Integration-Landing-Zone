@@ -4,11 +4,15 @@ subscription_id     = "c5d4a6e8-69bf-4148-be25-cb362f83c370"
 suffix              = "lz-tf"
 environment         = "dev"
 
-vnet_address_spaces = [
+spoke_vnet_address_spaces = [
   "10.10.0.0/16"
 ]
 
-vnet_subnets = [
+hub_vnet_address_spaces = [
+  "192.168.100.0/23"
+]
+
+spoke_vnet_subnets = [
   {
     name             = "ase"
     address_prefixes = ["10.10.1.0/24"]
@@ -138,10 +142,13 @@ vnet_subnets = [
     route_table       = null
     delegation        = null
     service_endpoints = ["Microsoft.Storage", "Microsoft.Sql", "Microsoft.KeyVault", "Microsoft.EventHub", "Microsoft.ServiceBus"]
-  },
+  }
+]
+
+hub_vnet_subnets = [
   {
     name              = "AzureFirewallSubnet"
-    address_prefixes  = ["10.10.4.0/26"]
+    address_prefixes  = ["192.168.100.0/26"]
     nsg               = null
     route_table       = null
     delegation        = null
@@ -149,7 +156,7 @@ vnet_subnets = [
   },
   {
     name              = "AzureFirewallManagementSubnet"
-    address_prefixes  = ["10.10.4.64/26"]
+    address_prefixes  = ["192.168.100.64/26"]
     nsg               = null
     route_table       = null
     delegation        = null
