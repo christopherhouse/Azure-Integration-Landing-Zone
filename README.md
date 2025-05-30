@@ -14,6 +14,7 @@ This repository provides a modular, production-ready Terraform codebase for depl
   - Azure Key Vault (with RBAC, diagnostics, and security best practices)
   - Azure API Management (internal VNet integration, diagnostics, identity, and logging)
   - Azure Service Bus (Premium tier, private endpoint, and availability zone support)
+  - Azure Event Hub (Standard tier, private endpoint, event streaming capabilities)
   - Azure Firewall (Standard SKU, force tunneling, network/application/NAT rules)
 
   - Azure Data Factory (managed virtual network, private endpoints, and secure connectivity)
