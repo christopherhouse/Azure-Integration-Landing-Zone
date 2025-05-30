@@ -156,17 +156,15 @@ module "storage_accounts" {
 }
 
 module "service_bus" {
-  count                      = var.deploy_service_bus ? 1 : 0
+  count                      = var.service_bus.deploy ? 1 : 0
   source                     = "./modules/service_bus"
   name                       = module.names.service_bus_namespace_name
   location                   = data.azurerm_resource_group.rg.location
   resource_group_name        = data.azurerm_resource_group.rg.name
-  capacity_units             = var.service_bus_capacity_units
   log_analytics_workspace_id = module.log_analytics.workspace_id
   subnet_id                  = module.vnet.subnet_ids["private-endpoints"]
   vnet_id                    = module.vnet.vnet_id
-  queues                     = var.service_bus_queues
-  topics                     = var.service_bus_topics
+  config                     = var.service_bus
   tags                       = var.tags
 }
 
