@@ -14,6 +14,7 @@ This repository provides a modular, production-ready Terraform codebase for depl
   - Azure Key Vault (with RBAC, diagnostics, and security best practices)
   - Azure API Management (internal VNet integration, diagnostics, identity, and logging)
   - Azure Service Bus (Premium tier, private endpoint, and availability zone support)
+  - Azure Event Hub (Standard tier, private endpoint, event streaming capabilities)
   - Azure Firewall (Standard SKU, force tunneling, network/application/NAT rules)
 
   - Azure Data Factory (managed virtual network, private endpoints, and secure connectivity)
@@ -180,6 +181,78 @@ You can enable the Service Bus module in your terraform.tfvars:
 deploy_service_bus = true
 service_bus_capacity_units = 1
 ```
+
+---
+
+## 🔹 Event Hub Module
+
+> **This module is optional.**
+
+The **Event Hub** module provisions an Azure Event Hub namespace with:
+- Standard SKU for reliable event streaming capabilities
+- Private endpoint integration for secure, private access
+- Configurable capacity units (1, 2, 4, 8, 12, 20, 40)
+- Diagnostic settings routed to Log Analytics
+- Private DNS zone integration
+- Event hubs with configurable partition count and message retention
+- Consumer groups for event processing with metadata support
+
+The module includes example event hub and consumer group configurations out of the box. These can be customized or extended based on your specific event streaming needs.
+
+### Features
+
+- Creates an Azure Event Hub namespace with Standard SKU
+- Provisions event hubs with configurable settings (partition count, message retention)
+- Provisions consumer groups for event hubs with optional metadata
+- Integrates with private networking via private endpoints
+- Configures diagnostic settings for monitoring and logging
+- Disables public network access for enhanced security
+
+### Usage
+
+You can enable the Event Hub module in your terraform.tfvars:
+
+```hcl
+event_hub = {
+  deploy   = true
+  capacity = 1
+  event_hubs = [
+    {
+      name              = "telemetry-events"
+      partition_count   = 4
+      message_retention = 7
+      consumer_groups = [
+        {
+          name          = "analytics-processor"
+          user_metadata = "Analytics team consumer group"
+        },
+        {
+          name          = "alerts-processor"
+          user_metadata = "Alerts processing consumer group"
+        }
+      ]
+    }
+  ]
+}
+```
+
+### Inputs
+
+| Name | Description | Type | Default | Required |
+|------|-------------|------|---------|----------|
+| deploy | Controls whether the Event Hub module is deployed | `bool` | `false` | no |
+| capacity | Specifies the capacity units for the Event Hub namespace. Valid values are 1, 2, 4, 8, 12, 20, or 40. | `number` | `1` | no |
+| event_hubs | List of Event Hub configurations to create | `list(object)` | `[]` | no |
+
+### Outputs
+
+| Name | Description |
+|------|-------------|
+| namespace_id | The ID of the Event Hub namespace |
+| namespace_name | The name of the Event Hub namespace |
+| primary_connection_string | The primary connection string for the Event Hub namespace |
+| event_hub_ids | Map of event hub names to their resource IDs |
+| consumer_group_ids | Map of consumer group identifiers to their resource IDs |
 
 ---
 

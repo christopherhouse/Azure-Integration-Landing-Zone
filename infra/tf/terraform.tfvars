@@ -224,6 +224,43 @@ service_bus = {
   ]
 }
 
+event_hub = {
+  deploy   = true
+  capacity = 1
+  event_hubs = [
+    {
+      name              = "telemetry-events"
+      partition_count   = 4
+      message_retention = 7
+      consumer_groups = [
+        {
+          name          = "analytics-processor"
+          user_metadata = "Analytics team consumer group"
+        },
+        {
+          name          = "alerts-processor"
+          user_metadata = "Alerts processing consumer group"
+        }
+      ]
+    },
+    {
+      name              = "audit-events"
+      partition_count   = 2
+      message_retention = 1
+      consumer_groups = [
+        {
+          name          = "compliance-processor"
+          user_metadata = "Compliance team consumer group"
+        },
+        {
+          name          = "monitoring-processor"
+          user_metadata = "Monitoring team consumer group"
+        }
+      ]
+    }
+  ]
+}
+
 deploy_azure_data_factory = false
 # Example Data Factory configuration (uncomment to use)
 # data_factory_public_network_enabled = false

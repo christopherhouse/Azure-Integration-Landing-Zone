@@ -36,3 +36,7 @@ output "firewall_name" {
 output "data_factory_name" {
   value = module.naming.data_factory.name_unique
 }
+
+output "event_hub_namespace_name" {
+  value = module.naming.eventhub_namespace.name_unique
+}

@@ -43,5 +43,6 @@ module "private_endpoint" {
   connection_name                = "${var.key_vault_name}-pe-conn"
   private_connection_resource_id = azurerm_key_vault.this.id
   subresource_names              = ["vault"]
+  private_dns_zone_ids           = [module.private_dns_zone.zone_id]
   tags                           = var.tags
 }

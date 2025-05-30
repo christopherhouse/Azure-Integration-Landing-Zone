@@ -292,6 +292,30 @@ variable "data_factory_user_assigned_identity_ids" {
   default     = []
 }
 
+variable "event_hub" {
+  description = "Configuration for Event Hub deployment and resources"
+  type = object({
+    deploy   = bool
+    capacity = optional(number, 1)
+    event_hubs = optional(list(object({
+      name              = string
+      partition_count   = optional(number, 2)
+      message_retention = optional(number, 1)
+      consumer_groups = optional(list(object({
+        name          = string
+        user_metadata = optional(string)
+      })), [])
+    })), [])
+  })
+  default = {
+    deploy = false
+  }
+  validation {
+    condition     = contains([1, 2, 4, 8, 12, 20, 40], var.event_hub.capacity)
+    error_message = "Capacity must be one of: 1, 2, 4, 8, 12, 20, or 40."
+  }
+}
+
 variable "tags" {
   description = "A map of tags to assign to all resources."
   type        = map(string)
