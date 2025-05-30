@@ -212,10 +212,9 @@ variable "service_bus_topics" {
 variable "azure_firewall" {
   description = "Configuration for Azure Firewall deployment and rules"
   type = object({
-    deploy_azure_firewall  = bool
-    sku_name               = optional(string, "AZFW_VNet")
-    sku_tier               = optional(string, "Standard")
-    enable_force_tunneling = optional(bool, true)
+    deploy_azure_firewall = bool
+    sku_name              = optional(string, "AZFW_VNet")
+    sku_tier              = optional(string, "Standard")
     network_rules = optional(list(object({
       name                  = string
       description           = optional(string)

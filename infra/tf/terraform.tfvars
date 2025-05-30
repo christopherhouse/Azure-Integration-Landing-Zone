@@ -259,7 +259,6 @@ azure_firewall = {
   deploy_azure_firewall  = true
   sku_name               = "AZFW_VNet"
   sku_tier               = "Standard"
-  enable_force_tunneling = true
   network_rules = [
     {
       name                  = "AllowAzureMonitor"

@@ -1,53 +1,53 @@
 resource "azurerm_public_ip" "this" {
-  name                = "${var.name}-pip"
-  location            = var.location
-  resource_group_name = var.resource_group_name
+  name                = "${var.config.name}-pip"
+  location            = var.config.location
+  resource_group_name = var.config.resource_group_name
   allocation_method   = "Static"
   sku                 = "Standard"
-  tags                = var.tags
+  tags                = var.config.tags
 }
 
 resource "azurerm_firewall_policy" "this" {
-  name                = "${var.name}-policy"
-  resource_group_name = var.resource_group_name
-  location            = var.location
-  sku                 = var.firewall_config.sku_tier
-  tags                = var.tags
+  name                = "${var.config.name}-policy"
+  resource_group_name = var.config.resource_group_name
+  location            = var.config.location
+  sku                 = var.config.sku_tier
+  tags                = var.config.tags
 }
 
 resource "azurerm_firewall" "this" {
-  name                = var.name
-  location            = var.location
-  resource_group_name = var.resource_group_name
-  sku_name            = var.firewall_config.sku_name
-  sku_tier            = var.firewall_config.sku_tier
+  name                = var.config.name
+  location            = var.config.location
+  resource_group_name = var.config.resource_group_name
+  sku_name            = var.config.sku_name
+  sku_tier            = var.config.sku_tier
   firewall_policy_id  = azurerm_firewall_policy.this.id
-  tags                = var.tags
+  tags                = var.config.tags
 
   ip_configuration {
     name                 = "ipconfig"
-    subnet_id            = var.subnet_id
+    subnet_id            = var.config.subnet_id
     public_ip_address_id = azurerm_public_ip.this.id
   }
 
   management_ip_configuration {
     name                 = "forcetunnel"
-    subnet_id            = var.force_tunneling_subnet_id
+    subnet_id            = var.config.force_tunneling_subnet_id
     public_ip_address_id = azurerm_public_ip.forcetunnel.id
   }
 }
 
 resource "azurerm_public_ip" "forcetunnel" {
-  name                = "${var.name}-forcetunnel-pip"
-  location            = var.location
-  resource_group_name = var.resource_group_name
+  name                = "${var.config.name}-forcetunnel-pip"
+  location            = var.config.location
+  resource_group_name = var.config.resource_group_name
   allocation_method   = "Static"
   sku                 = "Standard"
-  tags                = var.tags
+  tags                = var.config.tags
 }
 
 resource "azurerm_firewall_policy_rule_collection_group" "network_rules" {
-  count              = length(var.firewall_config.network_rules) > 0 ? 1 : 0
+  count              = length(var.config.network_rules) > 0 ? 1 : 0
   name               = "network-rules"
   firewall_policy_id = azurerm_firewall_policy.this.id
   priority           = 100
@@ -58,7 +58,7 @@ resource "azurerm_firewall_policy_rule_collection_group" "network_rules" {
     action   = "Allow"
 
     dynamic "rule" {
-      for_each = var.firewall_config.network_rules
+      for_each = var.config.network_rules
       content {
         name                  = rule.value.name
         description           = rule.value.description
@@ -74,7 +74,7 @@ resource "azurerm_firewall_policy_rule_collection_group" "network_rules" {
 }
 
 resource "azurerm_firewall_policy_rule_collection_group" "application_rules" {
-  count              = length(var.firewall_config.application_rules) > 0 ? 1 : 0
+  count              = length(var.config.application_rules) > 0 ? 1 : 0
   name               = "application-rules"
   firewall_policy_id = azurerm_firewall_policy.this.id
   priority           = 300
@@ -85,7 +85,7 @@ resource "azurerm_firewall_policy_rule_collection_group" "application_rules" {
     action   = "Allow"
 
     dynamic "rule" {
-      for_each = var.firewall_config.application_rules
+      for_each = var.config.application_rules
       content {
         name             = rule.value.name
         description      = rule.value.description
@@ -105,7 +105,7 @@ resource "azurerm_firewall_policy_rule_collection_group" "application_rules" {
 }
 
 resource "azurerm_firewall_policy_rule_collection_group" "nat_rules" {
-  count              = length(var.firewall_config.nat_rules) > 0 ? 1 : 0
+  count              = length(var.config.nat_rules) > 0 ? 1 : 0
   name               = "nat-rules"
   firewall_policy_id = azurerm_firewall_policy.this.id
   priority           = 200
@@ -116,7 +116,7 @@ resource "azurerm_firewall_policy_rule_collection_group" "nat_rules" {
     action   = "Dnat"
 
     dynamic "rule" {
-      for_each = var.firewall_config.nat_rules
+      for_each = var.config.nat_rules
       content {
         name                = rule.value.name
         description         = rule.value.description
@@ -133,9 +133,9 @@ resource "azurerm_firewall_policy_rule_collection_group" "nat_rules" {
 }
 
 resource "azurerm_monitor_diagnostic_setting" "firewall" {
-  name                       = "${var.name}-diag"
+  name                       = "${var.config.name}-diag"
   target_resource_id         = azurerm_firewall.this.id
-  log_analytics_workspace_id = var.log_analytics_workspace_id
+  log_analytics_workspace_id = var.config.log_analytics_workspace_id
 
   dynamic "enabled_log" {
     for_each = [
