@@ -9,3 +9,8 @@ variable "tags" {
   description = "A map of tags to assign to resources."
   type        = map(string)
 }
+variable "private_dns_zone_ids" {
+  description = "List of private DNS zone IDs to associate with the private endpoint"
+  type        = list(string)
+  default     = []
+}

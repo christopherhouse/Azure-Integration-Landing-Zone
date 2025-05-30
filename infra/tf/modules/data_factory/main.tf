@@ -102,5 +102,6 @@ module "private_endpoint" {
   connection_name                = "${var.name}-pe-conn"
   private_connection_resource_id = azurerm_data_factory.this.id
   subresource_names              = ["dataFactory"]
+  private_dns_zone_ids           = [module.private_dns_zone.zone_id]
   tags                           = var.tags
 }

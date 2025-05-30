@@ -95,5 +95,6 @@ module "private_endpoint" {
   connection_name                = "${var.name}-pe-conn"
   private_connection_resource_id = azurerm_servicebus_namespace.this.id
   subresource_names              = ["namespace"]
+  private_dns_zone_ids           = [module.private_dns_zone.zone_id]
   tags                           = var.tags
 }
