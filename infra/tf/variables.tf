@@ -24,13 +24,19 @@ variable "environment" {
   type        = string
 }
 
-variable "vnet_address_spaces" {
-  description = "Address spaces for the virtual network."
+variable "spoke_vnet_address_spaces" {
+  description = "Address spaces for the spoke virtual network."
   type        = list(string)
 }
 
-variable "vnet_subnets" {
-  description = "Subnets configuration for the virtual network."
+variable "hub_vnet_address_spaces" {
+  description = "Address spaces for the hub virtual network (used when Azure Firewall is deployed)."
+  type        = list(string)
+  default     = []
+}
+
+variable "spoke_vnet_subnets" {
+  description = "Subnets configuration for the spoke virtual network."
   type = list(object({
     name             = string
     address_prefixes = list(string)
@@ -69,6 +75,49 @@ variable "vnet_subnets" {
     }))
     service_endpoints = optional(list(string))
   }))
+}
+
+variable "hub_vnet_subnets" {
+  description = "Subnets configuration for the hub virtual network (used when Azure Firewall is deployed)."
+  type = list(object({
+    name             = string
+    address_prefixes = list(string)
+    nsg = optional(object({
+      name = string
+      security_rules = list(object({
+        name                         = string
+        priority                     = number
+        direction                    = string
+        access                       = string
+        protocol                     = string
+        source_port_range            = optional(string)
+        source_port_ranges           = optional(list(string))
+        destination_port_range       = optional(string)
+        destination_port_ranges      = optional(list(string))
+        source_address_prefix        = optional(string)
+        source_address_prefixes      = optional(list(string))
+        destination_address_prefix   = optional(string)
+        destination_address_prefixes = optional(list(string))
+        description                  = string
+      }))
+    }))
+    route_table = optional(object({
+      name = string
+      routes = list(object({
+        name                   = string
+        address_prefix         = string
+        next_hop_type          = string
+        next_hop_in_ip_address = optional(string)
+      }))
+    }))
+    delegation = optional(object({
+      name         = string
+      service_name = string
+      actions      = list(string)
+    }))
+    service_endpoints = optional(list(string))
+  }))
+  default = []
 }
 
 variable "key_vault_purge_protection_enabled" {
