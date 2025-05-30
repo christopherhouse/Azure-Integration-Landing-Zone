@@ -167,29 +167,62 @@ apim_sku_capacity    = 1
 
 deploy_api_management          = true
 deploy_app_service_environment = true
-deploy_service_bus             = false
-# service_bus_capacity_units = 1
-# service_bus_queues = [
-#   {
-#     name = "orders-queue"
-#     max_size_in_megabytes = 1024
-#     default_message_ttl = "P14D"  # 14 days
-#     max_delivery_count = 10
-#   },
-#   {
-#     name = "notifications-queue"
-#     max_size_in_megabytes = 1024
-#     default_message_ttl = "P7D"   # 7 days
-#     max_delivery_count = 5
-#   }
-# ]
-# service_bus_topics = [
-#   {
-#     name = "events"
-#     max_size_in_megabytes = 1024
-#     default_message_ttl = "P14D"  # 14 days
-#     subscriptions = [
-#       {
+
+service_bus = {
+  deploy = false
+  capacity_units = 1
+  queues = [
+    {
+      name                  = "orders-queue"
+      max_size_in_megabytes = 1024
+      default_message_ttl   = "P14D" # 14 days
+      max_delivery_count    = 10
+    },
+    {
+      name                                 = "notifications-queue"
+      max_size_in_megabytes                = 1024
+      default_message_ttl                  = "P7D" # 7 days
+      max_delivery_count                   = 5
+      requires_session                     = true
+      dead_lettering_on_message_expiration = true
+    }
+  ]
+  topics = [
+    {
+      name                  = "events"
+      max_size_in_megabytes = 1024
+      default_message_ttl   = "P14D" # 14 days
+      subscriptions = [
+        {
+          name               = "all-events"
+          max_delivery_count = 10
+        },
+        {
+          name                = "critical-events"
+          max_delivery_count  = 20
+          default_message_ttl = "P7D" # 7 days
+          requires_session    = true
+        }
+      ]
+    },
+    {
+      name                  = "alerts"
+      max_size_in_megabytes = 1024
+      subscriptions = [
+        {
+          name               = "system-alerts"
+          max_delivery_count = 10
+        },
+        {
+          name                                      = "security-alerts"
+          max_delivery_count                        = 10
+          dead_lettering_on_message_expiration      = true
+          dead_lettering_on_filter_evaluation_error = true
+        }
+      ]
+    }
+  ]
+}
 
 deploy_azure_data_factory = false
 # Example Data Factory configuration (uncomment to use)
@@ -206,32 +239,6 @@ data_factory_managed_private_endpoints = [
     subresource_name   = "blob"
   }
 ]
-#         name = "all-events"
-#         max_delivery_count = 10
-#       },
-#       {
-#         name = "critical-events"
-#         max_delivery_count = 20
-#         default_message_ttl = "P7D"  # 7 days
-#       }
-#     ]
-#   },
-#   {
-#     name = "alerts"
-#     max_size_in_megabytes = 1024
-#     subscriptions = [
-#       {
-#         name = "system-alerts"
-#         max_delivery_count = 10
-#       },
-#       {
-#         name = "security-alerts"
-#         max_delivery_count = 10
-#         dead_lettering_on_message_expiration = true
-#       }
-#     ]
-#   }
-# ]
 
 storage_accounts = [
   {

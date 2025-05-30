@@ -3,14 +3,14 @@ resource "azurerm_servicebus_namespace" "this" {
   location                     = var.location
   resource_group_name          = var.resource_group_name
   sku                          = "Premium" # Always Premium SKU as per requirement
-  capacity                     = var.capacity_units
-  premium_messaging_partitions = min(var.capacity_units, 4)
+  capacity                     = var.config.capacity_units
+  premium_messaging_partitions = min(var.config.capacity_units, 4)
 
   tags = var.tags
 }
 
 resource "azurerm_servicebus_queue" "this" {
-  for_each     = { for q in var.queues : q.name => q }
+  for_each     = { for q in var.config.queues : q.name => q }
   name         = each.value.name
   namespace_id = azurerm_servicebus_namespace.this.id
 
@@ -24,7 +24,7 @@ resource "azurerm_servicebus_queue" "this" {
 }
 
 resource "azurerm_servicebus_topic" "this" {
-  for_each     = { for t in var.topics : t.name => t }
+  for_each     = { for t in var.config.topics : t.name => t }
   name         = each.value.name
   namespace_id = azurerm_servicebus_namespace.this.id
 
@@ -37,7 +37,7 @@ resource "azurerm_servicebus_topic" "this" {
 resource "azurerm_servicebus_subscription" "this" {
   for_each = {
     for subscription in flatten([
-      for topic in var.topics : [
+      for topic in var.config.topics : [
         for sub in lookup(topic, "subscriptions", []) : {
           topic_name = topic.name
           sub_name   = sub.name

@@ -153,60 +153,49 @@ variable "storage_accounts" {
   default = []
 }
 
-variable "deploy_service_bus" {
-  description = "Controls whether the Service Bus module is deployed"
-  type        = bool
-  default     = false
-}
-
-variable "service_bus_capacity_units" {
-  description = "Specifies the capacity units for the Service Bus namespace (Premium tier only). Valid values are 1, 2, 4, 8, or 16."
-  type        = number
-  default     = 1
+variable "service_bus" {
+  description = "Configuration for Service Bus deployment and resources"
+  type = object({
+    deploy = bool
+    capacity_units = optional(number, 1)
+    queues = optional(list(object({
+      name                                 = string
+      max_size_in_megabytes                = optional(number)
+      default_message_ttl                  = optional(string)
+      enable_partitioning                  = optional(bool)
+      enable_express                       = optional(bool)
+      max_delivery_count                   = optional(number)
+      lock_duration                        = optional(string)
+      requires_duplicate_detection         = optional(bool)
+      requires_session                     = optional(bool)
+      dead_lettering_on_message_expiration = optional(bool)
+    })), [])
+    topics = optional(list(object({
+      name                         = string
+      max_size_in_megabytes        = optional(number)
+      default_message_ttl          = optional(string)
+      enable_partitioning          = optional(bool)
+      enable_express               = optional(bool)
+      requires_duplicate_detection = optional(bool)
+      support_ordering             = optional(bool)
+      subscriptions = optional(list(object({
+        name                                      = string
+        max_delivery_count                        = optional(number)
+        default_message_ttl                       = optional(string)
+        lock_duration                             = optional(string)
+        dead_lettering_on_message_expiration      = optional(bool)
+        dead_lettering_on_filter_evaluation_error = optional(bool)
+        requires_session                          = optional(bool)
+      })), [])
+    })), [])
+  })
+  default = {
+    deploy = false
+  }
   validation {
-    condition     = contains([1, 2, 4, 8, 16], var.service_bus_capacity_units)
+    condition     = contains([1, 2, 4, 8, 16], var.service_bus.capacity_units)
     error_message = "Capacity units must be one of: 1, 2, 4, 8, or 16."
   }
-}
-
-variable "service_bus_queues" {
-  description = "List of Service Bus queues to create"
-  type = list(object({
-    name                                 = string
-    max_size_in_megabytes                = optional(number)
-    default_message_ttl                  = optional(string)
-    enable_partitioning                  = optional(bool)
-    enable_express                       = optional(bool)
-    max_delivery_count                   = optional(number)
-    lock_duration                        = optional(string)
-    requires_duplicate_detection         = optional(bool)
-    requires_session                     = optional(bool)
-    dead_lettering_on_message_expiration = optional(bool)
-  }))
-  default = []
-}
-
-variable "service_bus_topics" {
-  description = "List of Service Bus topics to create"
-  type = list(object({
-    name                         = string
-    max_size_in_megabytes        = optional(number)
-    default_message_ttl          = optional(string)
-    enable_partitioning          = optional(bool)
-    enable_express               = optional(bool)
-    requires_duplicate_detection = optional(bool)
-    support_ordering             = optional(bool)
-    subscriptions = optional(list(object({
-      name                                      = string
-      max_delivery_count                        = optional(number)
-      default_message_ttl                       = optional(string)
-      lock_duration                             = optional(string)
-      dead_lettering_on_message_expiration      = optional(bool)
-      dead_lettering_on_filter_evaluation_error = optional(bool)
-      requires_session                          = optional(bool)
-    })), [])
-  }))
-  default = []
 }
 
 variable "azure_firewall" {
