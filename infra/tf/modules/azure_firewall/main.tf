@@ -11,7 +11,7 @@ resource "azurerm_firewall_policy" "this" {
   name                = "${var.name}-policy"
   resource_group_name = var.resource_group_name
   location            = var.location
-  sku                 = var.sku_tier
+  sku                 = var.firewall_config.sku_tier
   tags                = var.tags
 }
 
@@ -19,8 +19,8 @@ resource "azurerm_firewall" "this" {
   name                = var.name
   location            = var.location
   resource_group_name = var.resource_group_name
-  sku_name            = var.sku_name
-  sku_tier            = var.sku_tier
+  sku_name            = var.firewall_config.sku_name
+  sku_tier            = var.firewall_config.sku_tier
   firewall_policy_id  = azurerm_firewall_policy.this.id
   tags                = var.tags
 
@@ -47,7 +47,7 @@ resource "azurerm_public_ip" "forcetunnel" {
 }
 
 resource "azurerm_firewall_policy_rule_collection_group" "network_rules" {
-  count              = length(var.network_rules) > 0 ? 1 : 0
+  count              = length(var.firewall_config.network_rules) > 0 ? 1 : 0
   name               = "network-rules"
   firewall_policy_id = azurerm_firewall_policy.this.id
   priority           = 100
@@ -58,7 +58,7 @@ resource "azurerm_firewall_policy_rule_collection_group" "network_rules" {
     action   = "Allow"
 
     dynamic "rule" {
-      for_each = var.network_rules
+      for_each = var.firewall_config.network_rules
       content {
         name                  = rule.value.name
         description           = rule.value.description
@@ -74,7 +74,7 @@ resource "azurerm_firewall_policy_rule_collection_group" "network_rules" {
 }
 
 resource "azurerm_firewall_policy_rule_collection_group" "application_rules" {
-  count              = length(var.application_rules) > 0 ? 1 : 0
+  count              = length(var.firewall_config.application_rules) > 0 ? 1 : 0
   name               = "application-rules"
   firewall_policy_id = azurerm_firewall_policy.this.id
   priority           = 300
@@ -85,7 +85,7 @@ resource "azurerm_firewall_policy_rule_collection_group" "application_rules" {
     action   = "Allow"
 
     dynamic "rule" {
-      for_each = var.application_rules
+      for_each = var.firewall_config.application_rules
       content {
         name             = rule.value.name
         description      = rule.value.description
@@ -105,7 +105,7 @@ resource "azurerm_firewall_policy_rule_collection_group" "application_rules" {
 }
 
 resource "azurerm_firewall_policy_rule_collection_group" "nat_rules" {
-  count              = length(var.nat_rules) > 0 ? 1 : 0
+  count              = length(var.firewall_config.nat_rules) > 0 ? 1 : 0
   name               = "nat-rules"
   firewall_policy_id = azurerm_firewall_policy.this.id
   priority           = 200
@@ -116,7 +116,7 @@ resource "azurerm_firewall_policy_rule_collection_group" "nat_rules" {
     action   = "Dnat"
 
     dynamic "rule" {
-      for_each = var.nat_rules
+      for_each = var.firewall_config.nat_rules
       content {
         name                = rule.value.name
         description         = rule.value.description

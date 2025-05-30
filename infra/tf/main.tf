@@ -78,15 +78,10 @@ module "azure_firewall" {
   name                       = module.names.firewall_name
   location                   = data.azurerm_resource_group.rg.location
   resource_group_name        = data.azurerm_resource_group.rg.name
-  sku_name                   = var.azure_firewall.sku_name
-  sku_tier                   = var.azure_firewall.sku_tier
   subnet_id                  = module.vnet.subnet_ids["AzureFirewallSubnet"]
-  enable_force_tunneling     = var.azure_firewall.enable_force_tunneling
   force_tunneling_subnet_id  = module.vnet.subnet_ids["AzureFirewallManagementSubnet"]
   log_analytics_workspace_id = module.log_analytics.workspace_id
-  network_rules              = var.azure_firewall.network_rules
-  application_rules          = var.azure_firewall.application_rules
-  nat_rules                  = var.azure_firewall.nat_rules
+  firewall_config            = var.azure_firewall
   tags                       = var.tags
 }
 

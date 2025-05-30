@@ -13,27 +13,9 @@ variable "resource_group_name" {
   type        = string
 }
 
-variable "sku_name" {
-  description = "The SKU name of the Azure Firewall. Possible values are AZFW_Hub and AZFW_VNet"
-  type        = string
-  default     = "AZFW_VNet"
-}
-
-variable "sku_tier" {
-  description = "The SKU tier of the Azure Firewall. Possible values are Standard and Premium"
-  type        = string
-  default     = "Standard"
-}
-
 variable "subnet_id" {
   description = "The ID of the subnet for Azure Firewall"
   type        = string
-}
-
-variable "enable_force_tunneling" {
-  description = "Enable force tunneling for Azure Firewall"
-  type        = bool
-  default     = true
 }
 
 variable "force_tunneling_subnet_id" {
@@ -41,58 +23,52 @@ variable "force_tunneling_subnet_id" {
   type        = string
 }
 
-variable "network_rules" {
-  description = "List of network rules to apply to the firewall"
-  type = list(object({
-    name                  = string
-    description           = optional(string)
-    priority              = number
-    action                = string
-    source_addresses      = optional(list(string))
-    destination_addresses = optional(list(string))
-    destination_ports     = list(string)
-    source_ip_groups      = optional(list(string))
-    destination_ip_groups = optional(list(string))
-    protocols             = list(string)
-  }))
-  default = []
-}
-
-variable "application_rules" {
-  description = "List of application rules to apply to the firewall"
-  type = list(object({
-    name             = string
-    description      = optional(string)
-    priority         = number
-    action           = string
-    source_addresses = optional(list(string))
-    source_ip_groups = optional(list(string))
-    destination_fqdns = optional(list(string))
-    fqdn_tags        = optional(list(string))
-    protocols = optional(list(object({
-      port = string
-      type = string
-    })))
-  }))
-  default = []
-}
-
-variable "nat_rules" {
-  description = "List of NAT rules to apply to the firewall"
-  type = list(object({
-    name                = string
-    description         = optional(string)
-    priority            = number
-    action              = string
-    source_addresses    = optional(list(string))
-    destination_address = string
-    destination_ports   = list(string)
-    source_ip_groups    = optional(list(string))
-    protocols           = list(string)
-    translated_address  = string
-    translated_port     = string
-  }))
-  default = []
+variable "firewall_config" {
+  description = "Configuration for Azure Firewall deployment and rules"
+  type = object({
+    sku_name               = optional(string, "AZFW_VNet")
+    sku_tier               = optional(string, "Standard")
+    enable_force_tunneling = optional(bool, true)
+    network_rules = optional(list(object({
+      name                  = string
+      description           = optional(string)
+      priority              = number
+      action                = string
+      source_addresses      = optional(list(string))
+      destination_addresses = optional(list(string))
+      destination_ports     = list(string)
+      source_ip_groups      = optional(list(string))
+      destination_ip_groups = optional(list(string))
+      protocols             = list(string)
+    })), [])
+    application_rules = optional(list(object({
+      name             = string
+      description      = optional(string)
+      priority         = number
+      action           = string
+      source_addresses = optional(list(string))
+      source_ip_groups = optional(list(string))
+      destination_fqdns = optional(list(string))
+      fqdn_tags        = optional(list(string))
+      protocols = optional(list(object({
+        port = string
+        type = string
+      })))
+    })), [])
+    nat_rules = optional(list(object({
+      name                = string
+      description         = optional(string)
+      priority            = number
+      action              = string
+      source_addresses    = optional(list(string))
+      destination_address = string
+      destination_ports   = list(string)
+      source_ip_groups    = optional(list(string))
+      protocols           = list(string)
+      translated_address  = string
+      translated_port     = string
+    })), [])
+  })
 }
 
 variable "log_analytics_workspace_id" {
