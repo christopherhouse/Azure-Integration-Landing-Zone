@@ -168,6 +168,19 @@ module "service_bus" {
   tags                       = var.tags
 }
 
+module "event_hub" {
+  count                      = var.event_hub.deploy ? 1 : 0
+  source                     = "./modules/event_hub"
+  name                       = module.names.event_hub_namespace_name
+  location                   = data.azurerm_resource_group.rg.location
+  resource_group_name        = data.azurerm_resource_group.rg.name
+  log_analytics_workspace_id = module.log_analytics.workspace_id
+  subnet_id                  = module.vnet.subnet_ids["private-endpoints"]
+  vnet_id                    = module.vnet.vnet_id
+  config                     = var.event_hub
+  tags                       = var.tags
+}
+
 module "data_factory" {
   count                          = var.deploy_azure_data_factory ? 1 : 0
   source                         = "./modules/data_factory"
