@@ -441,6 +441,11 @@ bastion = {
   tunneling_enabled      = true
 }
 
+integration_account = {
+  deploy   = true
+  sku_name = "Free"
+}
+
 tags = {
   environment   = "dev"
   owner         = "Chris House"
