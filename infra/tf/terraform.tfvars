@@ -421,7 +421,7 @@ azure_firewall = {
       ]
     }
   ]
-  enable_apim_dnat = false
+  enable_apim_dnat = true
 }
 
 tags = {
