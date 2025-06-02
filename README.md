@@ -508,6 +508,118 @@ module "azure_firewall" {
 
 ---
 
+## 🔹 Azure Bastion Module
+
+> **This module is optional.**
+
+The **Azure Bastion** module provisions an Azure Bastion host with:
+- Standard SKU for enterprise-grade secure connectivity
+- Native RDP/SSH client support enabled
+- Copy/paste, file copy, and IP connect capabilities
+- Secure connectivity without public IP addresses on VMs
+- Intelligent deployment on hub VNet (if firewall enabled) or spoke VNet (if not)
+- Complete integration with Log Analytics for monitoring
+
+### Features
+
+- Creates an Azure Bastion host with Standard SKU
+- Enables native client support for RDP/SSH connectivity
+- Configures Standard SKU features including file copy, IP connect, and tunneling
+- Automatically selects appropriate VNet based on Azure Firewall deployment
+- Integrates with Log Analytics for comprehensive monitoring and logging
+- Optional deployment controlled via configuration variable
+
+### Inputs
+
+| Name | Description | Type | Default | Required |
+|------|-------------|------|---------|----------|
+| deploy | Whether to deploy the Bastion module | `bool` | `false` | no |
+| copy_paste_enabled | Enable copy/paste functionality | `bool` | `true` | no |
+| file_copy_enabled | Enable file copy functionality | `bool` | `true` | no |
+| ip_connect_enabled | Enable IP connect functionality | `bool` | `true` | no |
+| shareable_link_enabled | Enable shareable link functionality | `bool` | `false` | no |
+| tunneling_enabled | Enable tunneling functionality | `bool` | `true` | no |
+
+### Usage
+
+```hcl
+bastion = {
+  deploy                 = true
+  copy_paste_enabled     = true
+  file_copy_enabled      = true
+  ip_connect_enabled     = true
+  shareable_link_enabled = false
+  tunneling_enabled      = true
+}
+```
+
+### VNet Selection Logic
+
+The module automatically selects the appropriate VNet for deployment:
+- **Hub VNet**: Used when `azure_firewall.deploy_azure_firewall = true`
+- **Spoke VNet**: Used when `azure_firewall.deploy_azure_firewall = false`
+
+### Subnet Requirements
+
+The module requires an `AzureBastionSubnet` in the target VNet:
+- Subnet name must be exactly `AzureBastionSubnet`
+- Minimum subnet size is `/26` (64 addresses)
+- Example configuration in `terraform.tfvars`:
+
+```hcl
+# For spoke VNet (when firewall is disabled)
+spoke_vnet_subnets = [
+  # ... other subnets ...
+  {
+    name              = "AzureBastionSubnet"
+    address_prefixes  = ["10.10.4.0/26"]
+    nsg               = null
+    route_table       = null
+    delegation        = null
+    service_endpoints = []
+  }
+]
+
+# For hub VNet (when firewall is enabled)
+hub_vnet_subnets = [
+  # ... other subnets ...
+  {
+    name              = "AzureBastionSubnet"
+    address_prefixes  = ["192.168.100.128/26"]
+    nsg               = null
+    route_table       = null
+    delegation        = null
+    service_endpoints = []
+  }
+]
+```
+
+### Example Implementation
+
+```hcl
+module "bastion" {
+  source = "./modules/bastion"
+  config = {
+    name                       = module.names.bastion_name
+    location                   = var.location
+    resource_group_name        = var.resource_group_name
+    subnet_id                  = var.deploy_hub_vnet ? module.hub_vnet.subnet_ids["AzureBastionSubnet"] : module.spoke_vnet.subnet_ids["AzureBastionSubnet"]
+    log_analytics_workspace_id = module.log_analytics.workspace_id
+    sku                        = "Standard"
+    copy_paste_enabled         = true
+    file_copy_enabled          = true
+    ip_connect_enabled         = true
+    shareable_link_enabled     = false
+    tunneling_enabled          = true
+    tags                       = var.tags
+  }
+}
+```
+
+This module is ideal for organizations requiring secure, centralized access to virtual machines without exposing them to the public internet.
+
+---
+
 ## 💡 Tips
 
 - All resource names are generated using the [Azure Naming Terraform Module](https://registry.terraform.io/modules/Azure/naming/azurerm/latest).
