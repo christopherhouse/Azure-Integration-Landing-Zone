@@ -1,21 +1,21 @@
 output "integration_account_id" {
   description = "The ID of the Logic App Integration Account"
-  value       = azurerm_logic_app_integration_account.this.id
+  value       = azapi_resource.this.id
 }
 
 output "integration_account_name" {
   description = "The name of the Logic App Integration Account"
-  value       = azurerm_logic_app_integration_account.this.name
+  value       = azapi_resource.this.name
 }
 
 output "integration_account_access_endpoint" {
   description = "The access endpoint of the Logic App Integration Account"
-  value       = azurerm_logic_app_integration_account.this.access_endpoint
+  value       = jsondecode(azapi_resource.this.output).properties.accessEndpoint
 }
 
 output "integration_account_principal_id" {
   description = "The principal ID of the system assigned managed identity"
-  value       = azurerm_logic_app_integration_account.this.identity[0].principal_id
+  value       = jsondecode(azapi_resource.this.output).identity.principalId
 }
 
 output "storage_account_id" {
