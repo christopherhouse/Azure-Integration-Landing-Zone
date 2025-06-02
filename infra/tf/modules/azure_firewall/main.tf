@@ -8,7 +8,7 @@ resource "azurerm_public_ip" "this" {
 }
 
 resource "azurerm_ip_group" "apim_subnet" {
-  name                = "${var.config.name}-apim-ipgroup"
+  name                = "${var.config.name}-apim-subnet-ipgroup"
   location            = var.config.location
   resource_group_name = var.config.resource_group_name
   cidrs               = [var.config.apim_subnet_cidr]

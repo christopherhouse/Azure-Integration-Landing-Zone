@@ -25,5 +25,5 @@ output "firewall_policy_id" {
 
 output "apim_ip_group_id" {
   value       = azurerm_ip_group.apim_subnet.id
-  description = "The ID of the APIM subnet IP Group"
+  description = "The ID of the IP Group containing the APIM subnet address space"
 }
