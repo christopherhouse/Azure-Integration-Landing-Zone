@@ -64,3 +64,8 @@ variable "tags" {
   description = "A map of tags to assign to resources."
   type        = map(string)
 }
+
+variable "log_analytics_workspace_id" {
+  description = "The ID of the Log Analytics workspace to which diagnostic logs will be sent."
+  type        = string
+}

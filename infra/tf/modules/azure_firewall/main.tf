@@ -21,7 +21,7 @@ resource "azurerm_firewall_policy" "this" {
   location            = var.config.location
   sku                 = var.config.sku_tier
   tags                = var.config.tags
-  
+
 }
 
 resource "azurerm_firewall" "this" {
@@ -75,7 +75,7 @@ resource "azurerm_firewall_policy_rule_collection_group" "network_rules" {
         source_addresses      = rule.value.source_addresses != null ? (length([for addr in rule.value.source_addresses : addr if addr != var.config.apim_subnet_cidr]) > 0 ? [for addr in rule.value.source_addresses : addr if addr != var.config.apim_subnet_cidr] : null) : null
         destination_addresses = rule.value.destination_addresses
         destination_ports     = rule.value.destination_ports
-        source_ip_groups      = concat(
+        source_ip_groups = concat(
           rule.value.source_ip_groups != null ? rule.value.source_ip_groups : [],
           rule.value.source_addresses != null && contains(rule.value.source_addresses, var.config.apim_subnet_cidr) ? [azurerm_ip_group.apim_subnet.id] : []
         )
@@ -144,11 +144,41 @@ resource "azurerm_firewall_policy_rule_collection_group" "nat_rules" {
 }
 
 resource "azurerm_monitor_diagnostic_setting" "firewall" {
-  name                       = "${var.config.name}-diag"
-  target_resource_id         = azurerm_firewall.this.id
-  log_analytics_workspace_id = var.config.log_analytics_workspace_id
+  name                           = "${var.config.name}-diag"
+  target_resource_id             = azurerm_firewall.this.id
+  log_analytics_workspace_id     = var.config.log_analytics_workspace_id
   log_analytics_destination_type = "Dedicated"
-  
+
+  enabled_log {
+    category_group = "AllLogs"
+  }
+
+  metric {
+    category = "AllMetrics"
+    enabled  = true
+  }
+}
+
+resource "azurerm_monitor_diagnostic_setting" "public_ip" {
+  name                       = "${var.config.name}-pip-diag"
+  target_resource_id         = azurerm_public_ip.this.id
+  log_analytics_workspace_id = var.config.log_analytics_workspace_id
+
+  enabled_log {
+    category_group = "AllLogs"
+  }
+
+  metric {
+    category = "AllMetrics"
+    enabled  = true
+  }
+}
+
+resource "azurerm_monitor_diagnostic_setting" "public_ip_forcetunnel" {
+  name                       = "${var.config.name}-forcetunnel-pip-diag"
+  target_resource_id         = azurerm_public_ip.forcetunnel.id
+  log_analytics_workspace_id = var.config.log_analytics_workspace_id
+
   enabled_log {
     category_group = "AllLogs"
   }

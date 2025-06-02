@@ -4,17 +4,17 @@ resource "azurerm_eventhub_namespace" "this" {
   resource_group_name = var.resource_group_name
   sku                 = "Standard" # Standard SKU for production workloads
   capacity            = var.config.capacity
-  
+
   # Disable public network access for security
   public_network_access_enabled = false
-  
+
   tags = var.tags
 }
 
 resource "azurerm_eventhub" "this" {
-  for_each            = { for eh in var.config.event_hubs : eh.name => eh }
-  name                = each.value.name
-  namespace_id        = azurerm_eventhub_namespace.this.id
+  for_each          = { for eh in var.config.event_hubs : eh.name => eh }
+  name              = each.value.name
+  namespace_id      = azurerm_eventhub_namespace.this.id
   partition_count   = lookup(each.value, "partition_count", 2)
   message_retention = lookup(each.value, "message_retention", 1)
 }
@@ -31,21 +31,21 @@ resource "azurerm_eventhub_consumer_group" "this" {
       ]
     ]) : "${consumer_group.event_hub_name}-${consumer_group.cg_name}" => consumer_group
   }
-  
+
   name                = each.value.cg_name
   namespace_name      = azurerm_eventhub_namespace.this.name
   eventhub_name       = each.value.event_hub_name
   resource_group_name = var.resource_group_name
-  
+
   user_metadata = lookup(each.value.cg_config, "user_metadata", null)
-  
+
   depends_on = [azurerm_eventhub.this]
 }
 
 resource "azurerm_monitor_diagnostic_setting" "eventhub_diag" {
-  name                       = "eh-diag"
-  target_resource_id         = azurerm_eventhub_namespace.this.id
-  log_analytics_workspace_id = var.log_analytics_workspace_id
+  name                           = "eh-diag"
+  target_resource_id             = azurerm_eventhub_namespace.this.id
+  log_analytics_workspace_id     = var.log_analytics_workspace_id
   log_analytics_destination_type = "Dedicated"
 
   enabled_log {
