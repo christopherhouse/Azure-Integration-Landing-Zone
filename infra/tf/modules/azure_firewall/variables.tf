@@ -7,6 +7,7 @@ variable "config" {
     subnet_id                  = string
     force_tunneling_subnet_id  = string
     log_analytics_workspace_id = string
+    apim_subnet_cidr          = optional(string, "10.10.3.0/24")
     sku_name                   = optional(string, "AZFW_VNet")
     sku_tier                   = optional(string, "Standard")
     network_rules = optional(list(object({

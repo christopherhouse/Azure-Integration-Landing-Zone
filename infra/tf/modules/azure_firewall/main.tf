@@ -7,6 +7,14 @@ resource "azurerm_public_ip" "this" {
   tags                = var.config.tags
 }
 
+resource "azurerm_ip_group" "apim_subnet" {
+  name                = "${var.config.name}-apim-ipgroup"
+  location            = var.config.location
+  resource_group_name = var.config.resource_group_name
+  cidrs               = [var.config.apim_subnet_cidr]
+  tags                = var.config.tags
+}
+
 resource "azurerm_firewall_policy" "this" {
   name                = "${var.config.name}-policy"
   resource_group_name = var.config.resource_group_name
@@ -64,10 +72,13 @@ resource "azurerm_firewall_policy_rule_collection_group" "network_rules" {
         name                  = rule.value.name
         description           = rule.value.description
         protocols             = rule.value.protocols
-        source_addresses      = rule.value.source_addresses
+        source_addresses      = rule.value.source_addresses != null ? (length([for addr in rule.value.source_addresses : addr if addr != var.config.apim_subnet_cidr]) > 0 ? [for addr in rule.value.source_addresses : addr if addr != var.config.apim_subnet_cidr] : null) : null
         destination_addresses = rule.value.destination_addresses
         destination_ports     = rule.value.destination_ports
-        source_ip_groups      = rule.value.source_ip_groups
+        source_ip_groups      = concat(
+          rule.value.source_ip_groups != null ? rule.value.source_ip_groups : [],
+          rule.value.source_addresses != null && contains(rule.value.source_addresses, var.config.apim_subnet_cidr) ? [azurerm_ip_group.apim_subnet.id] : []
+        )
         destination_ip_groups = rule.value.destination_ip_groups
       }
     }
@@ -90,8 +101,11 @@ resource "azurerm_firewall_policy_rule_collection_group" "application_rules" {
       content {
         name             = rule.value.name
         description      = rule.value.description
-        source_addresses = rule.value.source_addresses
-        source_ip_groups = rule.value.source_ip_groups
+        source_addresses = rule.value.source_addresses != null ? (length([for addr in rule.value.source_addresses : addr if addr != var.config.apim_subnet_cidr]) > 0 ? [for addr in rule.value.source_addresses : addr if addr != var.config.apim_subnet_cidr] : null) : null
+        source_ip_groups = concat(
+          rule.value.source_ip_groups != null ? rule.value.source_ip_groups : [],
+          rule.value.source_addresses != null && contains(rule.value.source_addresses, var.config.apim_subnet_cidr) ? [azurerm_ip_group.apim_subnet.id] : []
+        )
         destination_fqdns = try(rule.value.destination_fqdns, null)
         dynamic "protocols" {
           for_each = rule.value.protocols != null ? rule.value.protocols : []
@@ -122,10 +136,13 @@ resource "azurerm_firewall_policy_rule_collection_group" "nat_rules" {
         name                = rule.value.name
         description         = rule.value.description
         protocols           = rule.value.protocols
-        source_addresses    = rule.value.source_addresses
+        source_addresses    = rule.value.source_addresses != null ? (length([for addr in rule.value.source_addresses : addr if addr != var.config.apim_subnet_cidr]) > 0 ? [for addr in rule.value.source_addresses : addr if addr != var.config.apim_subnet_cidr] : null) : null
         destination_address = rule.value.destination_address
         destination_ports   = rule.value.destination_ports
-        source_ip_groups    = rule.value.source_ip_groups
+        source_ip_groups    = concat(
+          rule.value.source_ip_groups != null ? rule.value.source_ip_groups : [],
+          rule.value.source_addresses != null && contains(rule.value.source_addresses, var.config.apim_subnet_cidr) ? [azurerm_ip_group.apim_subnet.id] : []
+        )
         translated_address  = rule.value.translated_address
         translated_port     = rule.value.translated_port
       }

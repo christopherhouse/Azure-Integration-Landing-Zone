@@ -136,6 +136,7 @@ module "azure_firewall" {
     subnet_id                  = module.hub_vnet[0].subnet_ids["AzureFirewallSubnet"]
     force_tunneling_subnet_id  = module.hub_vnet[0].subnet_ids["AzureFirewallManagementSubnet"]
     log_analytics_workspace_id = module.log_analytics.workspace_id
+    apim_subnet_cidr          = [for subnet in var.spoke_vnet_subnets : subnet.address_prefixes[0] if subnet.name == "apim"][0]
     sku_name                   = var.azure_firewall.sku_name
     sku_tier                   = var.azure_firewall.sku_tier
     network_rules              = var.azure_firewall.network_rules
