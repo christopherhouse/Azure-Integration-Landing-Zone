@@ -73,3 +73,14 @@ resource "azurerm_subnet_route_table_association" "subnet_rt_assoc" {
   subnet_id      = azurerm_subnet.this[each.key].id
   route_table_id = azurerm_route_table.subnet_rt[each.key].id
 }
+
+resource "azurerm_monitor_diagnostic_setting" "nsg" {
+  for_each                   = { for s in var.subnets : s.name => s if s.nsg != null }
+  name                       = "${each.value.nsg.name}-diag"
+  target_resource_id         = azurerm_network_security_group.subnet_nsg[each.key].id
+  log_analytics_workspace_id = var.log_analytics_workspace_id
+
+  enabled_log {
+    category_group = "AllLogs"
+  }
+}

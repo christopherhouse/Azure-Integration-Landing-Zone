@@ -49,24 +49,26 @@ module "log_analytics" {
 }
 
 module "spoke_vnet" {
-  source              = "./modules/vnet"
-  vnet_name           = "${module.names.vnet_name}-spoke"
-  location            = data.azurerm_resource_group.rg.location
-  resource_group_name = data.azurerm_resource_group.rg.name
-  address_spaces      = var.spoke_vnet_address_spaces
-  subnets             = var.spoke_vnet_subnets
-  tags                = var.tags
+  source                     = "./modules/vnet"
+  vnet_name                  = "${module.names.vnet_name}-spoke"
+  location                   = data.azurerm_resource_group.rg.location
+  resource_group_name        = data.azurerm_resource_group.rg.name
+  address_spaces             = var.spoke_vnet_address_spaces
+  subnets                    = var.spoke_vnet_subnets
+  log_analytics_workspace_id = module.log_analytics.workspace_id
+  tags                       = var.tags
 }
 
 module "hub_vnet" {
-  count               = var.azure_firewall.deploy_azure_firewall ? 1 : 0
-  source              = "./modules/vnet"
-  vnet_name           = "${module.names.vnet_name}-hub"
-  location            = data.azurerm_resource_group.rg.location
-  resource_group_name = data.azurerm_resource_group.rg.name
-  address_spaces      = var.hub_vnet_address_spaces
-  subnets             = var.hub_vnet_subnets
-  tags                = var.tags
+  count                      = var.azure_firewall.deploy_azure_firewall ? 1 : 0
+  source                     = "./modules/vnet"
+  vnet_name                  = "${module.names.vnet_name}-hub"
+  location                   = data.azurerm_resource_group.rg.location
+  resource_group_name        = data.azurerm_resource_group.rg.name
+  address_spaces             = var.hub_vnet_address_spaces
+  subnets                    = var.hub_vnet_subnets
+  log_analytics_workspace_id = module.log_analytics.workspace_id
+  tags                       = var.tags
 }
 
 module "vnet_peering" {
