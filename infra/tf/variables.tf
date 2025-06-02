@@ -368,6 +368,21 @@ variable "bastion" {
   }
 }
 
+variable "integration_account" {
+  description = "Configuration for Logic App Integration Account deployment"
+  type = object({
+    deploy   = bool
+    sku_name = optional(string, "Free")
+  })
+  default = {
+    deploy = false
+  }
+  validation {
+    condition     = contains(["Free", "Basic", "Standard", "Premium"], var.integration_account.sku_name)
+    error_message = "sku_name must be one of: Free, Basic, Standard, or Premium."
+  }
+}
+
 variable "tags" {
   description = "A map of tags to assign to all resources."
   type        = map(string)
