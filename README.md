@@ -18,6 +18,7 @@ This repository provides a modular, production-ready Terraform codebase for depl
   - Azure Firewall (Standard SKU, force tunneling, network/application/NAT rules)
 
   - Azure Data Factory (managed virtual network, private endpoints, and secure connectivity)
+  - Integration Account (configurable SKU, EDI support, private connectivity for Premium)
   - Azure Naming module integration for consistent resource names
 
 - **Best Practices**:  
@@ -405,6 +406,73 @@ A complete example implementation is available in the [examples/service_bus](/in
   - Dead-lettering on expiration
 
 This module is ideal for organizations requiring a robust messaging infrastructure with enterprise-grade security, reliability, and scalability.
+
+---
+
+## 🔹 Integration Account Module
+
+> **This module is optional.**
+
+The **Integration Account** module provisions a Logic App Integration Account with:
+- Configurable SKU tiers (Free, Basic, Standard, Premium)
+- Premium SKU support with zone redundant storage account
+- Private endpoint connectivity for Premium SKU
+- System assigned managed identity
+- Full diagnostic logging to Log Analytics
+- Private DNS zones for secure communication
+
+This module is ideal for organizations requiring EDI transaction processing, B2B integration scenarios, and enterprise application integration using Logic Apps.
+
+### Features
+
+- **Flexible SKU Configuration**: Supports Free, Basic, Standard, and Premium tiers
+- **Premium Storage Integration**: Automatically provisions zone redundant storage for Premium SKU
+- **Private Connectivity**: Private endpoints and DNS zones for Premium SKU deployments
+- **Identity Management**: System assigned managed identity enabled by default
+- **Monitoring**: Complete diagnostic settings integration with Log Analytics
+- **Security**: Follows network security best practices with private endpoints
+- **Enterprise Ready**: Supports complex EDI and B2B integration scenarios
+
+### Usage
+
+You can enable the Integration Account module in your terraform.tfvars:
+
+```hcl
+# Enable Integration Account deployment
+integration_account = {
+  deploy   = true
+  sku_name = "Premium"  # Free, Basic, Standard, or Premium
+}
+```
+
+### Example Implementation
+
+```hcl
+module "integration_account" {
+  source                     = "./modules/integration_account"
+  name                       = module.names.integration_account_name
+  location                   = var.location
+  resource_group_name        = var.resource_group_name
+  log_analytics_workspace_id = module.log_analytics.workspace_id
+  subnet_id                  = module.vnet.subnet_ids["private-endpoints"]
+  vnet_id                    = module.vnet.vnet_id
+  config                     = var.integration_account
+  tags                       = var.tags
+}
+```
+
+### SKU Tier Details
+
+- **Free**: Basic integration account with limited throughput
+- **Basic**: Standard integration capabilities with moderate throughput
+- **Standard**: Enhanced features with higher throughput limits
+- **Premium**: Full enterprise features with:
+  - Zone redundant storage account
+  - Private endpoint connectivity
+  - Private DNS zones
+  - Maximum throughput and capabilities
+
+This module is ideal for organizations requiring secure, scalable EDI processing and B2B integration capabilities with Logic Apps.
 
 ---
 
