@@ -6,6 +6,7 @@ terraform {
     }
   }
   required_version = ">= 1.0.0"
+
   backend "azurerm" {
     resource_group_name  = "RG-AIS-LZ-TF"
     storage_account_name = "saaislztf"
@@ -18,6 +19,7 @@ terraform {
 provider "azurerm" {
   features {}
   subscription_id = var.subscription_id
+  storage_use_azuread = true
 }
 
 provider "azurerm" {
@@ -48,7 +50,7 @@ module "log_analytics" {
 
 module "spoke_vnet" {
   source              = "./modules/vnet"
-  vnet_name           = module.names.vnet_name
+  vnet_name           = "${module.names.vnet_name}-spoke"
   location            = data.azurerm_resource_group.rg.location
   resource_group_name = data.azurerm_resource_group.rg.name
   address_spaces      = var.spoke_vnet_address_spaces
@@ -67,28 +69,16 @@ module "hub_vnet" {
   tags                = var.tags
 }
 
-# VNet Peering: Hub to Spoke
-resource "azurerm_virtual_network_peering" "hub_to_spoke" {
-  count                     = var.azure_firewall.deploy_azure_firewall ? 1 : 0
-  name                      = "hub-to-spoke"
-  resource_group_name       = data.azurerm_resource_group.rg.name
-  virtual_network_name      = module.hub_vnet[0].vnet_name
-  remote_virtual_network_id = module.spoke_vnet.vnet_id
-  allow_forwarded_traffic   = true
-  allow_gateway_transit     = false
-  use_remote_gateways       = false
-}
-
-# VNet Peering: Spoke to Hub  
-resource "azurerm_virtual_network_peering" "spoke_to_hub" {
-  count                     = var.azure_firewall.deploy_azure_firewall ? 1 : 0
-  name                      = "spoke-to-hub"
-  resource_group_name       = data.azurerm_resource_group.rg.name
-  virtual_network_name      = module.spoke_vnet.vnet_name
-  remote_virtual_network_id = module.hub_vnet[0].vnet_id
-  allow_forwarded_traffic   = true
-  allow_gateway_transit     = false
-  use_remote_gateways       = false
+module "vnet_peering" {
+  count                = var.azure_firewall.deploy_azure_firewall ? 1 : 0
+  source               = "./modules/vnet_peering"
+  resource_group_name  = data.azurerm_resource_group.rg.name
+  hub_vnet_name        = module.hub_vnet[0].vnet_name
+  hub_vnet_id          = module.hub_vnet[0].vnet_id
+  spoke_vnet_name      = module.spoke_vnet.vnet_name
+  spoke_vnet_id        = module.spoke_vnet.vnet_id
+  hub_to_spoke_name    = "hub-to-spoke"
+  spoke_to_hub_name    = "spoke-to-hub"
 }
 
 # Route table for APIM subnet - routes traffic through Azure Firewall when in hub/spoke topology

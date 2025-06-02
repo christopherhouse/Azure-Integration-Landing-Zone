@@ -26,23 +26,16 @@ resource "azurerm_monitor_diagnostic_setting" "apim" {
   target_resource_id         = azurerm_api_management.this.id
   log_analytics_workspace_id = var.log_analytics_workspace_id
 
-  dynamic "enabled_log" {
-    for_each = [
-      "DeveloperPortalAuditLogs",
-      "GatewayLlmLogs",
-      "GatewayLogs",
-      "WebSocketConnectionLogs"
-    ]
-    content {
-      category = enabled_log.value
-    }
+  enabled_log {
+    category_group = "AllLogs"
   }
 
-  dynamic "metric" {
-    for_each = ["AllMetrics"]
-    content {
-      category = metric.value
-      enabled  = true
-    }
+  enabled_log {
+    category_group = "Audit"
+  }
+
+  metric {
+    category = "AllMetrics"
+    enabled  = true
   }
 }

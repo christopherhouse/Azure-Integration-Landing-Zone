@@ -13,6 +13,7 @@ resource "azurerm_firewall_policy" "this" {
   location            = var.config.location
   sku                 = var.config.sku_tier
   tags                = var.config.tags
+  
 }
 
 resource "azurerm_firewall" "this" {
@@ -137,24 +138,8 @@ resource "azurerm_monitor_diagnostic_setting" "firewall" {
   target_resource_id         = azurerm_firewall.this.id
   log_analytics_workspace_id = var.config.log_analytics_workspace_id
 
-  dynamic "enabled_log" {
-    for_each = [
-      "AzureFirewallApplicationRule",
-      "AzureFirewallNetworkRule",
-      "AzureFirewallDnsProxy",
-      "AZFWApplicationRule",
-      "AZFWDnsQuery",
-      "AZFWFatFlow",
-      "AZFWFlowTrace",
-      "AZFWFqdnResolveFailure",
-      "AZFWIdpsSignature",
-      "AZFWNatRule",
-      "AZFWNetworkRule",
-      "AZFWThreatIntel"
-    ]
-    content {
-      category = enabled_log.value
-    }
+  enabled_log {
+    category_group = "AllLogs"
   }
 
   metric {

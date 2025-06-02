@@ -318,7 +318,7 @@ azure_firewall = {
       action                = "Allow"
       source_addresses      = ["10.10.0.0/16"]
       destination_addresses = ["AzureMonitor"]
-      destination_ports     = ["443"]
+      destination_ports     = ["443", "12000", "1886"]
       protocols             = ["TCP"]
     },
     {
