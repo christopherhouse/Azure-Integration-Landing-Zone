@@ -22,3 +22,8 @@ output "firewall_policy_id" {
   value       = azurerm_firewall_policy.this.id
   description = "The ID of the Firewall Policy"
 }
+
+output "apim_ip_group_id" {
+  value       = azurerm_ip_group.apim_subnet.id
+  description = "The ID of the IP Group containing the APIM subnet address space"
+}

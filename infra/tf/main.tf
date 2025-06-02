@@ -6,6 +6,7 @@ terraform {
     }
   }
   required_version = ">= 1.0.0"
+
   backend "azurerm" {
     resource_group_name  = "RG-AIS-LZ-TF"
     storage_account_name = "saaislztf"
@@ -17,7 +18,8 @@ terraform {
 
 provider "azurerm" {
   features {}
-  subscription_id = var.subscription_id
+  subscription_id     = var.subscription_id
+  storage_use_azuread = true
 }
 
 provider "azurerm" {
@@ -46,14 +48,66 @@ module "log_analytics" {
   tags                = var.tags
 }
 
-module "vnet" {
+module "spoke_vnet" {
   source              = "./modules/vnet"
-  vnet_name           = module.names.vnet_name
+  vnet_name           = "${module.names.vnet_name}-spoke"
   location            = data.azurerm_resource_group.rg.location
   resource_group_name = data.azurerm_resource_group.rg.name
-  address_spaces      = var.vnet_address_spaces
-  subnets             = var.vnet_subnets
+  address_spaces      = var.spoke_vnet_address_spaces
+  subnets             = var.spoke_vnet_subnets
   tags                = var.tags
+}
+
+module "hub_vnet" {
+  count               = var.azure_firewall.deploy_azure_firewall ? 1 : 0
+  source              = "./modules/vnet"
+  vnet_name           = "${module.names.vnet_name}-hub"
+  location            = data.azurerm_resource_group.rg.location
+  resource_group_name = data.azurerm_resource_group.rg.name
+  address_spaces      = var.hub_vnet_address_spaces
+  subnets             = var.hub_vnet_subnets
+  tags                = var.tags
+}
+
+module "vnet_peering" {
+  count               = var.azure_firewall.deploy_azure_firewall ? 1 : 0
+  source              = "./modules/vnet_peering"
+  resource_group_name = data.azurerm_resource_group.rg.name
+  hub_vnet_name       = module.hub_vnet[0].vnet_name
+  hub_vnet_id         = module.hub_vnet[0].vnet_id
+  spoke_vnet_name     = module.spoke_vnet.vnet_name
+  spoke_vnet_id       = module.spoke_vnet.vnet_id
+  hub_to_spoke_name   = "hub-to-spoke"
+  spoke_to_hub_name   = "spoke-to-hub"
+}
+
+# Route table for APIM subnet - routes traffic through Azure Firewall when in hub/spoke topology
+resource "azurerm_route_table" "apim_route_table" {
+  count               = var.azure_firewall.deploy_azure_firewall ? 1 : 0
+  name                = "apim-route-table"
+  location            = data.azurerm_resource_group.rg.location
+  resource_group_name = data.azurerm_resource_group.rg.name
+  tags                = var.tags
+
+  route {
+    name           = "ApiManagementServiceRoute"
+    address_prefix = "ApiManagement"
+    next_hop_type  = "Internet"
+  }
+
+  route {
+    name                   = "DefaultRoute"
+    address_prefix         = "0.0.0.0/0"
+    next_hop_type          = "VirtualAppliance"
+    next_hop_in_ip_address = module.azure_firewall[0].firewall_private_ip
+  }
+}
+
+# Associate route table with APIM subnet
+resource "azurerm_subnet_route_table_association" "apim_route_table_association" {
+  count          = var.azure_firewall.deploy_azure_firewall ? 1 : 0
+  subnet_id      = module.spoke_vnet.subnet_ids["apim"]
+  route_table_id = azurerm_route_table.apim_route_table[0].id
 }
 
 data "azurerm_client_config" "current" {}
@@ -67,8 +121,8 @@ module "key_vault" {
   purge_protection_enabled   = var.key_vault_purge_protection_enabled
   soft_delete_retention_days = var.key_vault_soft_delete_retention_days
   log_analytics_workspace_id = module.log_analytics.workspace_id
-  vnet_id                    = module.vnet.vnet_id
-  subnet_id                  = module.vnet.subnet_ids["private-endpoints"]
+  vnet_id                    = module.spoke_vnet.vnet_id
+  subnet_id                  = module.spoke_vnet.subnet_ids["private-endpoints"]
   tags                       = var.tags
 }
 
@@ -79,14 +133,16 @@ module "azure_firewall" {
     name                       = module.names.firewall_name
     location                   = data.azurerm_resource_group.rg.location
     resource_group_name        = data.azurerm_resource_group.rg.name
-    subnet_id                  = module.vnet.subnet_ids["AzureFirewallSubnet"]
-    force_tunneling_subnet_id  = module.vnet.subnet_ids["AzureFirewallManagementSubnet"]
+    subnet_id                  = module.hub_vnet[0].subnet_ids["AzureFirewallSubnet"]
+    force_tunneling_subnet_id  = module.hub_vnet[0].subnet_ids["AzureFirewallManagementSubnet"]
     log_analytics_workspace_id = module.log_analytics.workspace_id
+    apim_subnet_cidr           = [for subnet in var.spoke_vnet_subnets : subnet.address_prefixes[0] if subnet.name == "apim"][0]
     sku_name                   = var.azure_firewall.sku_name
     sku_tier                   = var.azure_firewall.sku_tier
     network_rules              = var.azure_firewall.network_rules
     application_rules          = var.azure_firewall.application_rules
-    nat_rules                  = var.azure_firewall.nat_rules
+    enable_apim_dnat           = var.azure_firewall.enable_apim_dnat
+    apim_private_ip            = var.deploy_api_management ? module.api_management[0].private_ip_addresses[0] : ""
     tags                       = var.tags
   }
 }
@@ -101,7 +157,7 @@ module "api_management" {
   publisher_email                 = var.apim_publisher_email
   sku_name                        = var.apim_sku_name
   sku_capacity                    = var.apim_sku_capacity
-  subnet_id                       = module.vnet.subnet_ids["apim"]
+  subnet_id                       = module.spoke_vnet.subnet_ids["apim"]
   log_analytics_workspace_id      = module.log_analytics.workspace_id
   enable_system_assigned_identity = true # or false, depending on your needs
   user_assigned_identity_ids      = []   # or provide actual IDs if needed
@@ -114,8 +170,8 @@ module "app_service_environment" {
   app_service_environment_name = module.names.app_service_environment_name
   resource_group_name          = data.azurerm_resource_group.rg.name
   location                     = var.location
-  vnet_id                      = module.vnet.vnet_id
-  subnet_id                    = module.vnet.subnet_ids["ase"]
+  vnet_id                      = module.spoke_vnet.vnet_id
+  subnet_id                    = module.spoke_vnet.subnet_ids["ase"]
   tags                         = var.tags
 }
 
@@ -144,8 +200,8 @@ module "storage_accounts" {
   access_tier                = lookup(each.value, "access_tier", "Hot")
   min_tls_version            = lookup(each.value, "min_tls_version", "TLS1_2")
   allow_blob_public_access   = lookup(each.value, "allow_blob_public_access", false)
-  vnet_id                    = module.vnet.vnet_id
-  subnet_id                  = module.vnet.subnet_ids["private-endpoints"]
+  vnet_id                    = module.spoke_vnet.vnet_id
+  subnet_id                  = module.spoke_vnet.subnet_ids["private-endpoints"]
   private_endpoints          = lookup(each.value, "private_endpoints", [])
   create_private_dns_zone    = lookup(each.value, "create_private_dns_zone", false)
   blob_containers            = lookup(each.value, "blob_containers", [])
@@ -162,8 +218,8 @@ module "service_bus" {
   location                   = data.azurerm_resource_group.rg.location
   resource_group_name        = data.azurerm_resource_group.rg.name
   log_analytics_workspace_id = module.log_analytics.workspace_id
-  subnet_id                  = module.vnet.subnet_ids["private-endpoints"]
-  vnet_id                    = module.vnet.vnet_id
+  subnet_id                  = module.spoke_vnet.subnet_ids["private-endpoints"]
+  vnet_id                    = module.spoke_vnet.vnet_id
   config                     = var.service_bus
   tags                       = var.tags
 }
@@ -175,8 +231,8 @@ module "event_hub" {
   location                   = data.azurerm_resource_group.rg.location
   resource_group_name        = data.azurerm_resource_group.rg.name
   log_analytics_workspace_id = module.log_analytics.workspace_id
-  subnet_id                  = module.vnet.subnet_ids["private-endpoints"]
-  vnet_id                    = module.vnet.vnet_id
+  subnet_id                  = module.spoke_vnet.subnet_ids["private-endpoints"]
+  vnet_id                    = module.spoke_vnet.vnet_id
   config                     = var.event_hub
   tags                       = var.tags
 }
@@ -194,7 +250,7 @@ module "data_factory" {
   identity_type                  = var.data_factory_identity_type
   user_assigned_identity_ids     = var.data_factory_user_assigned_identity_ids
   log_analytics_workspace_id     = module.log_analytics.workspace_id
-  subnet_id                      = module.vnet.subnet_ids["private-endpoints"]
-  vnet_id                        = module.vnet.vnet_id
+  subnet_id                      = module.spoke_vnet.subnet_ids["private-endpoints"]
+  vnet_id                        = module.spoke_vnet.vnet_id
   tags                           = var.tags
 }

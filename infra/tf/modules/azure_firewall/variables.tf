@@ -7,6 +7,7 @@ variable "config" {
     subnet_id                  = string
     force_tunneling_subnet_id  = string
     log_analytics_workspace_id = string
+    apim_subnet_cidr          = optional(string, "10.10.3.0/24")
     sku_name                   = optional(string, "AZFW_VNet")
     sku_tier                   = optional(string, "Standard")
     network_rules = optional(list(object({
@@ -35,19 +36,8 @@ variable "config" {
         type = string
       })))
     })), [])
-    nat_rules = optional(list(object({
-      name                = string
-      description         = optional(string)
-      priority            = number
-      action              = string
-      source_addresses    = optional(list(string))
-      destination_address = string
-      destination_ports   = list(string)
-      source_ip_groups    = optional(list(string))
-      protocols           = list(string)
-      translated_address  = string
-      translated_port     = string
-    })), [])
+    enable_apim_dnat    = optional(bool, false)
+    apim_private_ip     = optional(string, "")
     tags = optional(map(string), {})
   })
 }

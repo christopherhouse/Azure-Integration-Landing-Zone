@@ -7,12 +7,21 @@ resource "azurerm_public_ip" "this" {
   tags                = var.config.tags
 }
 
+resource "azurerm_ip_group" "apim_subnet" {
+  name                = "${var.config.name}-apim-subnet-ipgroup"
+  location            = var.config.location
+  resource_group_name = var.config.resource_group_name
+  cidrs               = [var.config.apim_subnet_cidr]
+  tags                = var.config.tags
+}
+
 resource "azurerm_firewall_policy" "this" {
   name                = "${var.config.name}-policy"
   resource_group_name = var.config.resource_group_name
   location            = var.config.location
   sku                 = var.config.sku_tier
   tags                = var.config.tags
+  
 }
 
 resource "azurerm_firewall" "this" {
@@ -63,10 +72,13 @@ resource "azurerm_firewall_policy_rule_collection_group" "network_rules" {
         name                  = rule.value.name
         description           = rule.value.description
         protocols             = rule.value.protocols
-        source_addresses      = rule.value.source_addresses
+        source_addresses      = rule.value.source_addresses != null ? (length([for addr in rule.value.source_addresses : addr if addr != var.config.apim_subnet_cidr]) > 0 ? [for addr in rule.value.source_addresses : addr if addr != var.config.apim_subnet_cidr] : null) : null
         destination_addresses = rule.value.destination_addresses
         destination_ports     = rule.value.destination_ports
-        source_ip_groups      = rule.value.source_ip_groups
+        source_ip_groups      = concat(
+          rule.value.source_ip_groups != null ? rule.value.source_ip_groups : [],
+          rule.value.source_addresses != null && contains(rule.value.source_addresses, var.config.apim_subnet_cidr) ? [azurerm_ip_group.apim_subnet.id] : []
+        )
         destination_ip_groups = rule.value.destination_ip_groups
       }
     }
@@ -89,8 +101,11 @@ resource "azurerm_firewall_policy_rule_collection_group" "application_rules" {
       content {
         name             = rule.value.name
         description      = rule.value.description
-        source_addresses = rule.value.source_addresses
-        source_ip_groups = rule.value.source_ip_groups
+        source_addresses = rule.value.source_addresses != null ? (length([for addr in rule.value.source_addresses : addr if addr != var.config.apim_subnet_cidr]) > 0 ? [for addr in rule.value.source_addresses : addr if addr != var.config.apim_subnet_cidr] : null) : null
+        source_ip_groups = concat(
+          rule.value.source_ip_groups != null ? rule.value.source_ip_groups : [],
+          rule.value.source_addresses != null && contains(rule.value.source_addresses, var.config.apim_subnet_cidr) ? [azurerm_ip_group.apim_subnet.id] : []
+        )
         destination_fqdns = try(rule.value.destination_fqdns, null)
         dynamic "protocols" {
           for_each = rule.value.protocols != null ? rule.value.protocols : []
@@ -105,7 +120,7 @@ resource "azurerm_firewall_policy_rule_collection_group" "application_rules" {
 }
 
 resource "azurerm_firewall_policy_rule_collection_group" "nat_rules" {
-  count              = length(var.config.nat_rules) > 0 ? 1 : 0
+  count              = var.config.enable_apim_dnat ? 1 : 0
   name               = "nat-rules"
   firewall_policy_id = azurerm_firewall_policy.this.id
   priority           = 200
@@ -115,19 +130,15 @@ resource "azurerm_firewall_policy_rule_collection_group" "nat_rules" {
     priority = 100
     action   = "Dnat"
 
-    dynamic "rule" {
-      for_each = var.config.nat_rules
-      content {
-        name                = rule.value.name
-        description         = rule.value.description
-        protocols           = rule.value.protocols
-        source_addresses    = rule.value.source_addresses
-        destination_address = rule.value.destination_address
-        destination_ports   = rule.value.destination_ports
-        source_ip_groups    = rule.value.source_ip_groups
-        translated_address  = rule.value.translated_address
-        translated_port     = rule.value.translated_port
-      }
+    rule {
+      name                = "InboundToAPIM"
+      description         = "Inbound DNAT rule to APIM private interface"
+      protocols           = ["TCP"]
+      source_addresses    = ["*"]
+      destination_address = azurerm_public_ip.this.ip_address
+      destination_ports   = ["443"]
+      translated_address  = var.config.apim_private_ip
+      translated_port     = "443"
     }
   }
 }
@@ -137,24 +148,8 @@ resource "azurerm_monitor_diagnostic_setting" "firewall" {
   target_resource_id         = azurerm_firewall.this.id
   log_analytics_workspace_id = var.config.log_analytics_workspace_id
 
-  dynamic "enabled_log" {
-    for_each = [
-      "AzureFirewallApplicationRule",
-      "AzureFirewallNetworkRule",
-      "AzureFirewallDnsProxy",
-      "AZFWApplicationRule",
-      "AZFWDnsQuery",
-      "AZFWFatFlow",
-      "AZFWFlowTrace",
-      "AZFWFqdnResolveFailure",
-      "AZFWIdpsSignature",
-      "AZFWNatRule",
-      "AZFWNetworkRule",
-      "AZFWThreatIntel"
-    ]
-    content {
-      category = enabled_log.value
-    }
+  enabled_log {
+    category_group = "AllLogs"
   }
 
   metric {

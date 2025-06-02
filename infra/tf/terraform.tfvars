@@ -4,11 +4,15 @@ subscription_id     = "c5d4a6e8-69bf-4148-be25-cb362f83c370"
 suffix              = "lz-tf"
 environment         = "dev"
 
-vnet_address_spaces = [
+spoke_vnet_address_spaces = [
   "10.10.0.0/16"
 ]
 
-vnet_subnets = [
+hub_vnet_address_spaces = [
+  "192.168.100.0/23"
+]
+
+spoke_vnet_subnets = [
   {
     name             = "ase"
     address_prefixes = ["10.10.1.0/24"]
@@ -138,10 +142,13 @@ vnet_subnets = [
     route_table       = null
     delegation        = null
     service_endpoints = ["Microsoft.Storage", "Microsoft.Sql", "Microsoft.KeyVault", "Microsoft.EventHub", "Microsoft.ServiceBus"]
-  },
+  }
+]
+
+hub_vnet_subnets = [
   {
     name              = "AzureFirewallSubnet"
-    address_prefixes  = ["10.10.4.0/26"]
+    address_prefixes  = ["192.168.100.0/26"]
     nsg               = null
     route_table       = null
     delegation        = null
@@ -149,7 +156,7 @@ vnet_subnets = [
   },
   {
     name              = "AzureFirewallManagementSubnet"
-    address_prefixes  = ["10.10.4.64/26"]
+    address_prefixes  = ["192.168.100.64/26"]
     nsg               = null
     route_table       = null
     delegation        = null
@@ -169,7 +176,7 @@ deploy_api_management          = true
 deploy_app_service_environment = true
 
 service_bus = {
-  deploy = false
+  deploy         = false
   capacity_units = 1
   queues = [
     {
@@ -300,18 +307,18 @@ storage_accounts = [
 ]
 
 azure_firewall = {
-  deploy_azure_firewall  = true
-  sku_name               = "AZFW_VNet"
-  sku_tier               = "Standard"
+  deploy_azure_firewall = true
+  sku_name              = "AZFW_VNet"
+  sku_tier              = "Standard"
   network_rules = [
     {
       name                  = "AllowAzureMonitor"
       description           = "Allow traffic to Azure Monitor"
       priority              = 100
       action                = "Allow"
-      source_addresses      = ["10.10.0.0/16"]
+      source_addresses      = ["10.10.3.0/24"] # APIM subnet
       destination_addresses = ["AzureMonitor"]
-      destination_ports     = ["443"]
+      destination_ports     = ["443", "12000", "1886"]
       protocols             = ["TCP"]
     },
     {
@@ -414,20 +421,7 @@ azure_firewall = {
       ]
     }
   ]
-  nat_rules = [
-    # {
-    #   name                = "InboundToAPIM"
-    #   description         = "Inbound NAT rule to APIM private interface"
-    #   priority            = 100
-    #   action              = "Dnat"
-    #   source_addresses    = ["*"]
-    #   destination_address = "" # Replace with actual public IP in production
-    #   destination_ports   = ["443"]
-    #   protocols           = ["TCP"]
-    #   translated_address  = "10.10.3.4" # Replace with actual APIM private IP in production
-    #   translated_port     = "443"
-    # }
-  ]
+  enable_apim_dnat = true
 }
 
 tags = {
