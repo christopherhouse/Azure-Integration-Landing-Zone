@@ -147,6 +147,25 @@ module "azure_firewall" {
   }
 }
 
+module "bastion" {
+  count  = var.bastion.deploy ? 1 : 0
+  source = "./modules/bastion"
+  config = {
+    name                       = module.names.bastion_name
+    location                   = data.azurerm_resource_group.rg.location
+    resource_group_name        = data.azurerm_resource_group.rg.name
+    subnet_id                  = var.azure_firewall.deploy_azure_firewall ? module.hub_vnet[0].subnet_ids["AzureBastionSubnet"] : module.spoke_vnet.subnet_ids["AzureBastionSubnet"]
+    log_analytics_workspace_id = module.log_analytics.workspace_id
+    sku                        = "Standard"
+    copy_paste_enabled         = var.bastion.copy_paste_enabled
+    file_copy_enabled          = var.bastion.file_copy_enabled
+    ip_connect_enabled         = var.bastion.ip_connect_enabled
+    shareable_link_enabled     = var.bastion.shareable_link_enabled
+    tunneling_enabled          = var.bastion.tunneling_enabled
+    tags                       = var.tags
+  }
+}
+
 module "api_management" {
   count                           = var.deploy_api_management ? 1 : 0
   source                          = "./modules/api_management"

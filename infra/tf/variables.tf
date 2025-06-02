@@ -353,6 +353,21 @@ variable "event_hub" {
   }
 }
 
+variable "bastion" {
+  description = "Configuration for Azure Bastion deployment"
+  type = object({
+    deploy                 = bool
+    copy_paste_enabled     = optional(bool, true)
+    file_copy_enabled      = optional(bool, true)
+    ip_connect_enabled     = optional(bool, true)
+    shareable_link_enabled = optional(bool, false)
+    tunneling_enabled      = optional(bool, true)
+  })
+  default = {
+    deploy = false
+  }
+}
+
 variable "tags" {
   description = "A map of tags to assign to all resources."
   type        = map(string)

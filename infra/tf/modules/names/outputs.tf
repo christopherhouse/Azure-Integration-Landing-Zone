@@ -40,3 +40,7 @@ output "data_factory_name" {
 output "event_hub_namespace_name" {
   value = module.naming.eventhub_namespace.name_unique
 }
+
+output "bastion_name" {
+  value = module.naming.bastion_host.name_unique
+}

@@ -142,7 +142,7 @@ spoke_vnet_subnets = [
     route_table       = null
     delegation        = null
     service_endpoints = ["Microsoft.Storage", "Microsoft.Sql", "Microsoft.KeyVault", "Microsoft.EventHub", "Microsoft.ServiceBus"]
-  }
+  },
 ]
 
 hub_vnet_subnets = [
@@ -157,6 +157,14 @@ hub_vnet_subnets = [
   {
     name              = "AzureFirewallManagementSubnet"
     address_prefixes  = ["192.168.100.64/26"]
+    nsg               = null
+    route_table       = null
+    delegation        = null
+    service_endpoints = []
+  },
+  {
+    name              = "AzureBastionSubnet"
+    address_prefixes  = ["192.168.100.128/26"]
     nsg               = null
     route_table       = null
     delegation        = null
@@ -422,6 +430,15 @@ azure_firewall = {
     }
   ]
   enable_apim_dnat = true
+}
+
+bastion = {
+  deploy                 = false
+  copy_paste_enabled     = true
+  file_copy_enabled      = true
+  ip_connect_enabled     = true
+  shareable_link_enabled = false
+  tunneling_enabled      = true
 }
 
 tags = {
