@@ -4,6 +4,10 @@ terraform {
       source  = "hashicorp/azurerm"
       version = "~> 4"
     }
+    azapi = {
+      source  = "Azure/azapi"
+      version = "~> 1.0"
+    }
   }
   required_version = ">= 1.0.0"
 
@@ -274,4 +278,17 @@ module "data_factory" {
   subnet_id                      = module.spoke_vnet.subnet_ids["private-endpoints"]
   vnet_id                        = module.spoke_vnet.vnet_id
   tags                           = var.tags
+}
+
+module "integration_account" {
+  count                      = var.integration_account.deploy ? 1 : 0
+  source                     = "./modules/integration_account"
+  name                       = module.names.integration_account_name
+  location                   = data.azurerm_resource_group.rg.location
+  resource_group_name        = data.azurerm_resource_group.rg.name
+  log_analytics_workspace_id = module.log_analytics.workspace_id
+  subnet_id                  = module.spoke_vnet.subnet_ids["private-endpoints"]
+  vnet_id                    = module.spoke_vnet.vnet_id
+  config                     = var.integration_account
+  tags                       = var.tags
 }

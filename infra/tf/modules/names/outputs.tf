@@ -44,3 +44,7 @@ output "event_hub_namespace_name" {
 output "bastion_name" {
   value = module.naming.bastion_host.name_unique
 }
+
+output "integration_account_name" {
+  value = module.naming.logic_app_workflow.name_unique
+}
