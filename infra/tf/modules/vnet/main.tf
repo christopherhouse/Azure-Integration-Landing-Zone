@@ -83,9 +83,4 @@ resource "azurerm_monitor_diagnostic_setting" "nsg" {
   enabled_log {
     category_group = "AllLogs"
   }
-
-  metric {
-    category = "AllMetrics"
-    enabled  = true
-  }
 }

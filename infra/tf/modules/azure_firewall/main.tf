@@ -168,6 +168,10 @@ resource "azurerm_monitor_diagnostic_setting" "public_ip" {
     category_group = "AllLogs"
   }
 
+  enabled_log {
+    category_group = "Audit"
+  }
+
   metric {
     category = "AllMetrics"
     enabled  = true
@@ -181,6 +185,10 @@ resource "azurerm_monitor_diagnostic_setting" "public_ip_forcetunnel" {
 
   enabled_log {
     category_group = "AllLogs"
+  }
+
+  enabled_log {
+    category_group = "Audit"
   }
 
   metric {
