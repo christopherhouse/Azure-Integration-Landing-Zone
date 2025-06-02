@@ -18,7 +18,7 @@ terraform {
 
 provider "azurerm" {
   features {}
-  subscription_id = var.subscription_id
+  subscription_id     = var.subscription_id
   storage_use_azuread = true
 }
 
@@ -70,15 +70,15 @@ module "hub_vnet" {
 }
 
 module "vnet_peering" {
-  count                = var.azure_firewall.deploy_azure_firewall ? 1 : 0
-  source               = "./modules/vnet_peering"
-  resource_group_name  = data.azurerm_resource_group.rg.name
-  hub_vnet_name        = module.hub_vnet[0].vnet_name
-  hub_vnet_id          = module.hub_vnet[0].vnet_id
-  spoke_vnet_name      = module.spoke_vnet.vnet_name
-  spoke_vnet_id        = module.spoke_vnet.vnet_id
-  hub_to_spoke_name    = "hub-to-spoke"
-  spoke_to_hub_name    = "spoke-to-hub"
+  count               = var.azure_firewall.deploy_azure_firewall ? 1 : 0
+  source              = "./modules/vnet_peering"
+  resource_group_name = data.azurerm_resource_group.rg.name
+  hub_vnet_name       = module.hub_vnet[0].vnet_name
+  hub_vnet_id         = module.hub_vnet[0].vnet_id
+  spoke_vnet_name     = module.spoke_vnet.vnet_name
+  spoke_vnet_id       = module.spoke_vnet.vnet_id
+  hub_to_spoke_name   = "hub-to-spoke"
+  spoke_to_hub_name   = "spoke-to-hub"
 }
 
 # Route table for APIM subnet - routes traffic through Azure Firewall when in hub/spoke topology
@@ -136,12 +136,13 @@ module "azure_firewall" {
     subnet_id                  = module.hub_vnet[0].subnet_ids["AzureFirewallSubnet"]
     force_tunneling_subnet_id  = module.hub_vnet[0].subnet_ids["AzureFirewallManagementSubnet"]
     log_analytics_workspace_id = module.log_analytics.workspace_id
-    apim_subnet_cidr          = [for subnet in var.spoke_vnet_subnets : subnet.address_prefixes[0] if subnet.name == "apim"][0]
+    apim_subnet_cidr           = [for subnet in var.spoke_vnet_subnets : subnet.address_prefixes[0] if subnet.name == "apim"][0]
     sku_name                   = var.azure_firewall.sku_name
     sku_tier                   = var.azure_firewall.sku_tier
     network_rules              = var.azure_firewall.network_rules
     application_rules          = var.azure_firewall.application_rules
-    nat_rules                  = var.azure_firewall.nat_rules
+    enable_apim_dnat           = var.azure_firewall.enable_apim_dnat
+    apim_private_ip            = var.deploy_api_management ? module.api_management[0].private_ip_addresses[0] : ""
     tags                       = var.tags
   }
 }

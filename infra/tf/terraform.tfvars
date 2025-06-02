@@ -176,7 +176,7 @@ deploy_api_management          = true
 deploy_app_service_environment = true
 
 service_bus = {
-  deploy = false
+  deploy         = false
   capacity_units = 1
   queues = [
     {
@@ -307,9 +307,9 @@ storage_accounts = [
 ]
 
 azure_firewall = {
-  deploy_azure_firewall  = true
-  sku_name               = "AZFW_VNet"
-  sku_tier               = "Standard"
+  deploy_azure_firewall = true
+  sku_name              = "AZFW_VNet"
+  sku_tier              = "Standard"
   network_rules = [
     {
       name                  = "AllowAzureMonitor"
@@ -421,20 +421,7 @@ azure_firewall = {
       ]
     }
   ]
-  nat_rules = [
-    # {
-    #   name                = "InboundToAPIM"
-    #   description         = "Inbound NAT rule to APIM private interface"
-    #   priority            = 100
-    #   action              = "Dnat"
-    #   source_addresses    = ["*"]
-    #   destination_address = "" # Replace with actual public IP in production
-    #   destination_ports   = ["443"]
-    #   protocols           = ["TCP"]
-    #   translated_address  = "10.10.3.4" # Replace with actual APIM private IP in production
-    #   translated_port     = "443"
-    # }
-  ]
+  enable_apim_dnat = false
 }
 
 tags = {
