@@ -25,7 +25,7 @@ resource "azurerm_monitor_diagnostic_setting" "apim" {
   name                       = "${var.name}-diag"
   target_resource_id         = azurerm_api_management.this.id
   log_analytics_workspace_id = var.log_analytics_workspace_id
-
+  log_analytics_destination_type = "Dedicated"
   enabled_log {
     category_group = "AllLogs"
   }

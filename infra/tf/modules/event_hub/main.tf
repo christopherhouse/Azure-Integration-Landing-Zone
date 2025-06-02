@@ -46,30 +46,14 @@ resource "azurerm_monitor_diagnostic_setting" "eventhub_diag" {
   name                       = "eh-diag"
   target_resource_id         = azurerm_eventhub_namespace.this.id
   log_analytics_workspace_id = var.log_analytics_workspace_id
+  log_analytics_destination_type = "Dedicated"
 
   enabled_log {
-    category = "OperationalLogs"
+    category_group = "AllLogs"
   }
 
   enabled_log {
-    category = "AutoScaleLogs"
-  }
-
-  enabled_log {
-    category = "KafkaCoordinatorLogs"
-  }
-
-  enabled_log {
-    category = "KafkaUserErrorLogs"
-  }
-
-  enabled_log {
-    category = "EventHubVNetConnectionEvent"
-  }
-
-  metric {
-    category = "AllMetrics"
-    enabled  = true
+    category_group = "Audit"
   }
 }
 

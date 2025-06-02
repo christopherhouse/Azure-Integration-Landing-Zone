@@ -143,14 +143,6 @@ spoke_vnet_subnets = [
     delegation        = null
     service_endpoints = ["Microsoft.Storage", "Microsoft.Sql", "Microsoft.KeyVault", "Microsoft.EventHub", "Microsoft.ServiceBus"]
   },
-  {
-    name              = "AzureBastionSubnet"
-    address_prefixes  = ["10.10.4.0/26"]
-    nsg               = null
-    route_table       = null
-    delegation        = null
-    service_endpoints = []
-  }
 ]
 
 hub_vnet_subnets = [

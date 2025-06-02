@@ -35,6 +35,9 @@ resource "azurerm_monitor_diagnostic_setting" "bastion" {
     category_group = "AllLogs"
   }
 
+  enabled_log {
+    category_group = "Audit"
+  }
   metric {
     category = "AllMetrics"
     enabled  = true
